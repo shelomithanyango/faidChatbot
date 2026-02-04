@@ -1,7 +1,7 @@
 from google import genai
 from django.conf import settings
 
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+api_key = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 # First aid instructions dictionary
 FIRST_AID_INSTRUCTIONS = {
@@ -25,8 +25,8 @@ def get_chatbot_response(user_message):
 
     # 2️⃣ Otherwise, fallback to Gemini AI
     try:
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
+        response = api_key.models.generate_content(
+            model="gemini-2.5-flash",
             contents=user_message
         )
         return response.text.strip()

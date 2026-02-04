@@ -11,9 +11,26 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+env_path=BASE_DIR/ ".env"
+GEMINI_API_KEY=None
+
+with open(env_path) as f:
+    for line in f:
+        line=line.strip()
+        if not line or line.startswith("#"):
+            continue
+        key, value=line.strip().split("=", 1)
+        if key=="GEMINI_API_KEY":
+            GEMINI_API_KEY=value
+        
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -124,4 +141,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-GEMINI_API_KEY = "AIzaSyAxCMgSHxtrIzDZkmfGo3Q_5d7NbNNP4q4"
+
