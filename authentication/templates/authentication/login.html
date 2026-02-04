@@ -86,6 +86,17 @@ button:hover {
   font-weight: bold;
   text-decoration: none;
 }
+
+.forgot-password {
+  text-align: right;
+  margin-bottom: 16px;
+}
+
+.forgot-password a {
+  color: var(--primary-start);
+  text-decoration: none;
+  font-size: 14px;
+}
 </style>
 </head>
 
@@ -101,26 +112,32 @@ button:hover {
   {% endif %}
 
   <form method="post">
-  {% csrf_token %}
+    {% csrf_token %}
 
-  <label for="username">Username</label>
-  <input
-    type="text"
-    id="username"
-    name="username"
-    required
-  >
+    <label for="username">Username</label>
+    <input
+      type="text"
+      id="username"
+      name="username"
+      required
+    >
 
-  <label for="password">Password</label>
-  <input
-    type="password"
-    id="password"
-    name="password"
-    required
-  >
+    <label for="password">Password</label>
+    <input
+      type="password"
+      id="password"
+      name="password"
+      required
+    >
 
-  <button type="submit">Login</button>
-</form>
+    <!-- Forgot password link -->
+    <div class="forgot-password">
+      <a href="{% url 'password_reset' %}">Forgot Password?</a>
+    </div>
+
+    <button type="submit">Login</button>
+  </form>
+
   <div class="links">
     Don’t have an account? <a href="{% url 'signup' %}">Sign Up</a>
   </div>
