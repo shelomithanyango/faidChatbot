@@ -29,8 +29,12 @@ SECRET_KEY = 'django-insecure-h_q3wl7=flr(2pf&&x)qn(4#q69)yx3@gwf&ltag33p8ig9fp0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'laborious-brande-relievedly.ngrok-free.dev']
-
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'laborious-brande-relievedly.ngrok-free.dev',
+    'django-first-aid-assistant.onrender.com',
+]
 
 # Application definition
 
