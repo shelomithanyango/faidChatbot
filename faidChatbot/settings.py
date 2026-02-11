@@ -33,7 +33,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     'laborious-brande-relievedly.ngrok-free.dev',
-    'django-first-aid-assistant.onrender.com',
+    'faidchatbot.onrender.com',
 ]
 
 # Application definition
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication',
     'chat',
+    'homepage',
     'ussd',
 ]
 
