@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediBot - First Aid Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-primary: #f0f4f8;
+            --bg-card: #ffffff;
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --primary-light: #e8f0fe;
+            --text-main: #1c2d42;
+            --text-muted: #657786;
+            --border-color: #d2e3fc;
+            --emergency-red: #d93025;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 30px;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .emergency-btn {
+            background-color: var(--emergency-red);
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(217, 48, 37, 0.2);
+        }
+
+        /* Main Content Container */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #f7f9fa;
+            position: relative;
+        }
+
+        /* Screen States */
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .screen.active-screen {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 1. AUTHENTICATION SCREEN */
+        .auth-container {
+            max-width: 420px;
+            width: 90%;
+            background: var(--bg-card);
+            margin: auto;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(26, 115, 232, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header h2 {
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-primary);
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+            background-color: #fff;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .auth-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* 2. CHAT INTERFACE */
+        .chat-header {
+            background-color: var(--bg-card);
+            padding: 15px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bot-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #34a853;
+            border-radius: 50%;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .message.bot {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            border: 1px solid var(--border-color);
+        }
+
+        .message.user {
+            background-color: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-input-area {
+            background-color: var(--bg-card);
+            padding: 20px 30px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 15px;
+        }
+
+        .chat-input-area input {
+            flex-grow: 1;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .send-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .send-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* 3. USER DATA DASHBOARD */
+        .dashboard-container {
+            padding: 40px;
+            overflow-y: auto;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 100%;
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+
+        .dash-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .dash-card h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--bg-primary);
+            padding-bottom: 10px;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+        }
+
+        .info-row span:first-child {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .info-row span:last-child {
+            font-weight: 600;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            padding: 14px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-meta h4 {
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .history-meta p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .tag {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #e8f0fe;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar" id="mainSidebar" style="display: none;">
+        <div>
+            <div class="logo-area">
+                <i class="fa-solid fa-heart-pulse"></i>
+                <span>MediBot UI</span>
+            </div>
+            <ul class="nav-links">
+                <li class="nav-item active" onclick="switchScreen('chat-screen', this)">
+                    <i class="fa-solid fa-comments"></i> Chat Assistant
+                </li>
+                <li class="nav-item" onclick="switchScreen('dashboard-screen', this)">
+                    <i class="fa-solid fa-user-shield"></i> Health Profile & Logs
+                </li>
+            </ul>
+        </div>
+        <a href="tel:911" class="emergency-btn">
+            <i class="fa-solid fa-phone-flip"></i> EMERGENCY CALL
+        </a>
+    </nav>
+
+    <main class="main-content">
+
+        <section id="auth-screen" class="screen active-screen">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2 style="color: var(--primary); font-size: 2rem; margin-bottom: 10px;">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </h2>
+                    <h2>Welcome to MediBot</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Your instant first-aid guiding companion.</p>
+                </div>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="email">EMAIL ADDRESS</label>
+                        <input type="email" id="email" required placeholder="name@example.com" value="user@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">PASSWORD</label>
+                        <input type="password" id="password" required placeholder="••••••••" value="password123">
+                    </div>
+                    <button type="submit" class="auth-btn">Sign In / Access Demo</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="chat-screen" class="screen">
+            <div class="chat-header">
+                <div class="bot-status">
+                    <div class="status-dot"></div>
+                    <div>
+                        <strong style="display: block; font-size: 1rem;">First Aid AI</strong>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Online | Ready to assist</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-circle-info" style="color: var(--text-muted); cursor: pointer; font-size: 1.2rem;"></i>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    Hello! I am your interactive First Aid assistant. Please describe the injury or symptoms concisely, or type a situation (e.g., "burn treatement"). 
+                    <br><br>
+                    <strong>⚠️ Disclaimer:</strong> I provide information for informational guidance only. For severe or life-threatening situations, use the Emergency button immediately.
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Ask about symptoms, burns, cuts, CPR...">
+                <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </section>
+
+        <section id="dashboard-screen" class="screen">
+            <div class="dashboard-container">
+                <h2 style="margin-bottom: 5px;">Your Secure Dashboard</h2>
+                <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 0.95rem;">Encrypted storage of your health profile data and past interaction queries.</p>
+                
+                <div class="dashboard-grid">
+                    <div class="dash-card">
+                        <h3><i class="fa-solid fa-id-card"></i> Emergency Profile</h3>
+                        <div class="profile-info">
+                            <div class="info-row"><span>Blood Type</span><span>O Positive (O+)</span></div>
+                            <div class="info-row"><span>Allergies</span><span>Penicillin, Peanuts</span></div>
+                            <div class="info-row"><span>Chronic Conditions</span><span>Asthma</span></div>
+                            <div class="info-row"><span>Emergency Contact</span><span>+1 (555) 019-2834</span></div>
+                        </div>
+                    </div>
+
+                    <div class="dash-card">
+                        <h3><i class="fa-solid fa-clock-rotate-left"></i> Chat Incident Logs</h3>
+                        <div class="history-list">
+                            <div class="history-item">
+                                <div class="history-meta">
+                                    <h4>Thermal Burn Treatment Guidance</h4>
+                                    <p>May 28, 2026 • 2-minute session</p>
+                                </div>
+                                <span class="tag">Minor Injury</span>
+                            </div>
+                            <div class="history-item">
+                                <div class="history-meta">
+                                    <h4>Adult CPR Steps Review</h4>
+                                    <p>April 14, 2026 • 5-minute session</p>
+                                </div>
+                                <span class="tag" style="background:#fce8e6; color:var(--emergency-red)">Critical</span>
+                            </div>
+                            <div class="history-item">
+                                <div class="history-meta">
+                                    <h4>Bee Sting Allergy Steps</h4>
+                                    <p>March 02, 2026 • 1-minute session</p>
+                                </div>
+                                <span class="tag" style="background: #fef7e0; color: #b06000;">Allergy</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Switch between chat screen and data dashboard screen
+        function switchScreen(screenId, element) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(screenId).classList.add('active-screen');
+            if(element) element.classList.add('active');
+        }
+
+        // Simulating the authentication layer sequence
+        function handleLogin(e) {
+            e.preventDefault();
+            document.getElementById('auth-screen').classList.remove('active-screen');
+            document.getElementById('mainSidebar').style.display = 'flex';
+            switchScreen('chat-screen');
+        }
+
+        // Functional chat bubble simulation 
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const container = document.getElementById('chatMessages');
+            if (!input.value.trim()) return;
+
+            // Append User Message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user';
+            userDiv.innerText = input.value;
+            container.appendChild(userDiv);
+
+            const userText = input.value.toLowerCase();
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            // Generate automated First-Aid response simulation
+            setTimeout(() => {
+                const botDiv = document.createElement('div');
+                botDiv.className = 'message bot';
+                
+                if (userText.includes('burn')) {
+                    botDiv.innerHTML = `<strong>First Aid for Minor Burns:</strong><br>1. Cool the burn immediately under cool, running tap water for 10-20 minutes.<br>2. Remove rings or tight items from the burned area.<br>3. Cover loosely with a sterile, non-stick bandage. Do not break blisters.`;
+                } else if (userText.includes('cpr')) {
+                    botDiv.innerHTML = `<strong>Adult CPR Quick Protocol:</strong><br>1. Check responsiveness and call local emergency response services immediately.<br>2. Place hands on center of chest and push hard/fast (100-120 compressions/minute).<br>3. If trained, offer 2 rescue breaths after every 30 compressions.`;
+                } else {
+                    botDiv.innerText = "I received your query. Please provide explicit details regarding injuries like cuts, burns, choking, or sprains so I can provide structured step-by-step guidance.";
+                }
+                
+                container.appendChild(botDiv);
+                container.scrollTop = container.scrollHeight;
+            }, 750);
+        }
+
+        // Enable pressing 'Enter' key inside the chat interface
+        document.getElementById('chatInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>

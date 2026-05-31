@@ -33,8 +33,10 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     'laborious-brande-relievedly.ngrok-free.dev',
-    'faidchatbot.onrender.com',
+     'faidchatbot.onrender.com',
 ]
+
+
 
 # Application definition
 
@@ -45,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts.apps.AccountsConfig',
     'authentication',
     'chat',
     'homepage',
@@ -99,14 +102,24 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
+
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
+
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
+
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+
+    {
+        'NAME': 'authentication.validators.StrongPasswordValidator',
     },
 ]
 
@@ -137,6 +150,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 GEMINI_API_KEY = config('GEMINI_API_KEY')
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+
+
 
 
 
