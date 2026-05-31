@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 
 def signup_view(request):
@@ -13,6 +15,13 @@ def signup_view(request):
 
         if password1 != password2:
             messages.error(request, "Passwords do not match")
+            return redirect("signup")
+
+        try:
+            validate_password(password1)
+        except ValidationError as e:
+            for error in e.messages:
+              messages.error(request, error)
             return redirect("signup")
 
         if User.objects.filter(username=username).exists():
@@ -41,7 +50,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("chat")   # chatbot page
+            return redirect("chat")
         else:
             messages.error(request, "Invalid username or password")
             return redirect("login")

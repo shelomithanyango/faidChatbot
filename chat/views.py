@@ -11,7 +11,7 @@ def chat(request):
     user_name = request.user.first_name or request.user.username
 
     # default welcome message
-    reply = f"👋 Hello {user_name}, how can I assist you today?"
+    reply = f" Hello {user_name}, how can I assist you today?"
 
     if request.method == "POST":
         user_message = request.POST.get("message")
