@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'authentication',
     'chat',
+    'history',
     'homepage',
     'ussd',
 ]

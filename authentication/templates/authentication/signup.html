@@ -1,193 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Sign Up - First Aid Assistant</title>
-<style>
-:root {
-  --primary-start: #0d9488;
-  --primary-end: #059669;
-  --bg-start: #f0fdfa;
-  --bg-end: #ecfdf5;
-  --text-main: #1f2937;
-  --border-default: #e5e7eb;
-  --input-focus: #10b981;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - MediBot</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #f4f7fe;
+            --brand-blue: #0056c6;
+            --brand-teal: #006672;
+            --gradient-start: #0284c7; /* Inspired by image_e157dd.jpg */
+            --gradient-end: #0f766e;   /* Inspired by image_e157dd.jpg */
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+            --alert-bg: #fee2e2;
+            --alert-text: #991b1b;
+        }
 
-* {
-  box-sizing: border-box;
-  transition: all 0.3s ease;
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            transition: all 0.2s ease;
+        }
 
-body {
-  margin: 0;
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
-  color: var(--text-main);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
+        body {
+            background-color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-.container {
-  background: white;
-  padding: 50px 40px;
-  border-radius: 24px;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.12);
-  width: 400px;
-  max-width: 90%;
-  text-align: center;
-}
+        /* MOBILE VIEWPANEL CONTAINER */
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 850px;
+            background-color: var(--bg-main);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 40px 24px; 
+        }
 
-h2 {
-  margin-bottom: 32px;
-  color: var(--primary-start);
-  font-size: 28px;
-  letter-spacing: 1px;
-}
+        /* BRAND LOGO HIERARCHY BASED ON image_e157dd.jpg */
+        .brand-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  text-align: left;
-}
+        .logo-icon-box {
+            font-size: 38px;
+            color: var(--brand-teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-/* Floating labels style */
-form .field {
-  position: relative;
-}
+        .brand-display h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
 
-form input {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border-default);
-  outline: none;
-  font-size: 16px;
-  background: #fafafa;
-}
+        .brand-display p {
+            font-size: 13px;
+            color: var(--text-gray);
+            font-weight: 500;
+        }
 
-form input:focus {
-  border-color: var(--input-focus);
-  box-shadow: 0 0 10px rgba(16,185,129,0.2);
-}
+        h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            align-self: flex-start;
+            margin-bottom: 16px;
+        }
 
-/* Label floating effect */
-form label {
-  position: absolute;
-  top: 50%;
-  left: 16px;
-  transform: translateY(-50%);
-  background: white;
-  padding: 0 4px;
-  color: #6b7280;
-  pointer-events: none;
-  transition: 0.2s ease all;
-}
+        /* DJANGO MESSAGE NOTIFICATION */
+        .message {
+            background-color: var(--alert-bg);
+            color: var(--alert-text);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
 
-form input:focus + label,
-form input:not(:placeholder-shown) + label {
-  top: -8px;
-  font-size: 12px;
-  color: var(--primary-start);
-}
+        /* AUTH FORM OBJECTS */
+        form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-form button {
-  padding: 14px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(to right, var(--primary-start), var(--primary-end));
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
+        .field-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
 
-form button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
+        .field-wrapper i.input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--text-gray);
+            font-size: 14px;
+            pointer-events: none;
+        }
 
-.links {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 14px;
-}
+        .field-wrapper i.toggle-password {
+            position: absolute;
+            right: 16px;
+            color: var(--text-gray);
+            font-size: 14px;
+            cursor: pointer;
+        }
 
-.links a {
-  color: var(--primary-start);
-  text-decoration: none;
-  font-weight: bold;
-}
+        form input {
+            width: 100%;
+            padding: 12px 16px 12px 42px; 
+            border-radius: 30px;
+            border: 1px solid #cbd5e1;
+            background-color: white;
+            font-size: 14px;
+            color: var(--text-dark);
+            outline: none;
+        }
 
-.links a:hover {
-  text-decoration: underline;
-}
+        form input:focus {
+            border-color: var(--brand-teal);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
 
-.message {
-  background: #ffedd5;
-  padding: 12px;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  color: #92400e;
-  font-weight: 500;
-  text-align: center;
-  animation: fadein 0.5s ease;
-}
+        form input::placeholder {
+            color: #94a3b8;
+        }
 
-@keyframes fadein {
-  from { opacity: 0; transform: translateY(-5px);}
-  to { opacity: 1; transform: translateY(0);}
-}
-</style>
+        /* GRADIENT BUTTON BASED ON IMAGE MOCKUP */
+        .btn-gradient {
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+            margin-top: 8px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-gradient:active {
+            transform: scale(0.99);
+            opacity: 0.95;
+        }
+
+        /* SOCIAL ACCESS DIVIDER */
+        .social-divider {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin: 16px 0;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        .social-divider::before, .social-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+            margin: 0 10px;
+        }
+
+        /* OAUTH THIRD PARTY BUTTON */
+        .btn-oauth {
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            background-color: white;
+            color: var(--text-dark);
+            border: 1px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-oauth:hover {
+            background-color: #f8fafc;
+        }
+
+        /* TIGHT CONTEXT LINKS-HUB FOOTER */
+        .links-hub {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-gray);
+            width: 100%;
+        }
+
+        .links-hub a {
+            color: var(--brand-teal);
+            font-weight: 700;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+
+        .links-hub a:hover {
+            color: var(--brand-blue);
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>Create Your Account</h2>
+    <div class="app-container">
+        
+        <!-- Standard Header Brand Setup -->
+        <div class="brand-display">
+            <div class="logo-icon-box">
+                <i class="fa-solid fa-square-plus"></i>
+            </div>
+            <h1>MediBot</h1>
+            <p>First Aid Assistant</p>
+        </div>
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="message">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-<form method="post">
-  {% csrf_token %}
+        <h2>Create Account</h2>
 
-  <!-- Email -->
-  <div class="field">
-    <input type="email" name="email" placeholder=" " required>
-    <label>Email</label>
-  </div>
+        <!-- Django Active Feedback Loop Context -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
 
-  <!-- Username -->
-  <div class="field">
-    <input type="text" name="username" placeholder=" " required>
-    <label>Username</label>
-  </div>
+        <!-- Secure Credentials Submission Form Interface -->
+        <form method="post">
+            {% csrf_token %}
 
-  <!-- Password -->
-  <div class="field">
-    <input type="password" name="password1" placeholder=" " required>
-    <label>Password</label>
-  </div>
+            <div class="field-wrapper">
+                <i class="fa-regular fa-user input-icon"></i>
+                <input type="text" name="username" placeholder="Name" required>
+            </div>
 
-  <!-- Confirm Password -->
-  <div class="field">
-    <input type="password" name="password2" placeholder=" " required>
-    <label>Confirm Password</label>
-  </div>
+            <div class="field-wrapper">
+                <i class="fa-regular fa-envelope input-icon"></i>
+                <input type="email" name="email" placeholder="Email" required>
+            </div>
 
-  <button type="submit">Sign Up</button>
-</form>
+            <div class="field-wrapper">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" name="password1" placeholder="Password" id="pass1" required>
+                <i class="fa-regular fa-eye-slash toggle-password" onclick="toggleVisibility('pass1', this)"></i>
+            </div>
 
-  <div class="links">
-    Already have an account? <a href="{% url 'login' %}">Login</a>
-  </div>
-</div>
+            <div class="field-wrapper">
+                <i class="fa-solid fa-shield-halved input-icon"></i>
+                <input type="password" name="password2" placeholder="Confirm Password" id="pass2" required>
+                <i class="fa-regular fa-eye-slash toggle-password" onclick="toggleVisibility('pass2', this)"></i>
+            </div>
+
+            <button type="submit" class="btn-gradient">Sign Up</button>
+        </form>
+
+        <!-- Social Integrations from image_e157dd.jpg -->
+        <div class="social-divider">or</div>
+        <button class="btn-oauth">
+            <i class="fa-brands fa-google" style="color: #ea4335;"></i>
+            Sign in with Google/Apple
+        </button>
+
+        <!-- Tight Bottom Redirect Link Grid -->
+        <div class="links-hub">
+            Already have an account?<a href="{% url 'login' %}">Login</a>
+        </div>
+
+    </div>
+
+    <!-- Password Mask Toggler Logic -->
+    <script>
+        function toggleVisibility(inputId, iconEl) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                iconEl.classList.replace("fa-eye-slash", "fa-eye");
+            } else {
+                input.type = "password";
+                iconEl.classList.replace("fa-eye", "fa-eye-slash");
+            }
+        }
+    </script>
+
 </body>
 </html>

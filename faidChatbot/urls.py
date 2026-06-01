@@ -24,4 +24,5 @@ urlpatterns = [
     path('', include('authentication.urls')),
     path('ussd/', include('ussd.urls')),
     path('accounts/', include('accounts.urls')),
+    path('history/', include('history.urls')),
 ]

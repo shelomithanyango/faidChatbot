@@ -1,100 +1,359 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Welcome - First Aid Assistant</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - MediBot</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #f4f7fe;
+            --brand-blue: #0056c6;
+            --brand-teal: #006672;
+            --gradient-start: #0284c7; /* Inspired by image_e157dd.jpg */
+            --gradient-end: #0f766e;   /* Inspired by image_e157dd.jpg */
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+        }
 
-<style>
-:root {
-  --primary-start: #0d9488;
-  --primary-end: #059669;
-  --bg-start: #f0fdfa;
-  --bg-end: #ecfdf5;
-  --text-main: #1f2937;
-  --border-default: #e5e7eb;
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            transition: all 0.2s ease;
+        }
 
-* { box-sizing: border-box; }
+        body {
+            background-color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-body {
-  margin: 0;
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: linear-gradient(to bottom, var(--bg-start), var(--bg-end));
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
+        /* MOBILE VIEWPANEL CONTAINER */
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 850px;
+            background-color: var(--bg-main);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 40px 24px; 
+        }
 
-.container {
-  background: white;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  width: 500px;
-  text-align: center;
-}
+        /* BRAND LOGO HIERARCHY BASED ON image_e157dd.jpg */
+        .brand-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
 
-h1 {
-  color: var(--primary-start);
-  margin-bottom: 16px;
-}
+        .logo-icon-box {
+            font-size: 38px;
+            color: var(--brand-teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-p {
-  color: var(--text-main);
-  margin-bottom: 24px;
-  line-height: 1.5;
-}
+        .brand-display h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
 
-button {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 999px;
-  background: linear-gradient(to right, var(--primary-start), var(--primary-end));
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  text-decoration: none;
-}
+        .brand-display p.subtitle {
+            font-size: 13px;
+            color: var(--text-gray);
+            font-weight: 500;
+            margin-bottom: 0;
+            padding: 0;
+        }
 
-button:hover {
-  opacity: 0.9;
-}
+        /* INTRO EXPLANATORY TEXT */
+        p.intro-text {
+            color: var(--text-gray);
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 0 12px;
+        }
 
-.links {
-  margin-top: 24px;
-}
+        /* ACTION BUTTON BLOCK */
+        .action-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-.links a {
-  color: var(--primary-start);
-  font-weight: bold;
-  text-decoration: none;
-  margin: 0 8px;
-}
+        /* CTA BUTTONS */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+        }
 
-.links a:hover {
-  text-decoration: underline;
-}
-</style>
+        /* GRADIENT BUTTON BASED ON IMAGE MOCKUP */
+        .btn-gradient {
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            color: white;
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+        }
+
+        .btn-gradient:active {
+            transform: scale(0.99);
+            opacity: 0.95;
+        }
+
+        .btn-outline {
+            background-color: white;
+            color: var(--text-dark);
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-outline:active {
+            transform: scale(0.99);
+            background-color: #f8fafc;
+        }
+
+        /* SOCIAL ACCESS DIVIDER */
+        .social-divider {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin: 16px 0;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        .social-divider::before, .social-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+            margin: 0 10px;
+        }
+
+        /* OAUTH THIRD PARTY BUTTON */
+        .btn-oauth {
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            background-color: white;
+            color: var(--text-dark);
+            border: 1px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-oauth:hover {
+            background-color: #f8fafc;
+        }
+
+        /* TIGHT CONTEXT LINKS-HUB FOOTER */
+        .links-hub {
+            margin-top: auto; /* Keeps navigation items neatly pinned to footer bounds */
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .links-hub a {
+            color: var(--brand-teal);
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .links-hub a:hover {
+            color: var(--brand-blue);
+            text-decoration: underline;
+        }
+
+        /* HELP POPUP MODAL STYLES */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: white;
+            width: 85%;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: scale(0.9);
+            text-align: left;
+        }
+
+        .modal-overlay.open .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            color: var(--brand-teal);
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .close-modal-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: var(--text-gray);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            font-size: 13px;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+
+        .modal-body ul {
+            margin-top: 8px;
+            padding-left: 16px;
+        }
+
+        .modal-body li {
+            margin-bottom: 6px;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
-  <h1>Welcome to First Aid Assistant</h1>
-  <p>
-    Your trusted companion for learning and managing first aid procedures. 
-    Stay prepared and confident to handle emergencies with ease.
-  </p>
+    <div class="app-container">
+        
+        <!-- Premium Header Setup from image_e157dd.jpg -->
+        <div class="brand-display">
+            <div class="logo-icon-box">
+                <i class="fa-solid fa-square-plus"></i>
+            </div>
+            <h1>MediBot</h1>
+            <p class="subtitle">First Aid Assistant</p>
+        </div>
 
-  <a href="{% url 'login' %}"><button>Login</button></a>
-  <a href="{% url 'signup' %}"><button>Sign Up</button></a>
+        <!-- Concept Subtitle Details -->
+        <p class="intro-text">
+            Your trusted companion for learning and managing first aid procedures. 
+            Stay prepared and confident to handle emergencies with ease.
+        </p>
 
-  <div class="links">
-    <a href="{% url 'homepage' %}">Home</a>
-    
-  </div>
-</div>
+        <!-- Access Action Matrix -->
+        <div class="action-group">
+            <a href="{% url 'login' %}" class="btn btn-gradient">Login</a>
+            <a href="{% url 'signup' %}" class="btn btn-outline">Sign Up</a>
+        </div>
+
+        <!-- Direct Social Integrations Layer -->
+        <div class="social-divider">or</div>
+        <button class="btn-oauth">
+            <i class="fa-brands fa-google" style="color: #ea4335;"></i>
+            Sign in with Google/Apple
+        </button>
+
+        <!-- Structural Navigation Base Footer Links -->
+        <div class="links-hub">
+            <a href="{% url 'homepage' %}"><i class="fa-solid fa-house" style="font-size: 12px; margin-right: 4px;"></i> Home</a>
+            <a id="helpLink"><i class="fa-regular fa-circle-question" style="font-size: 12px; margin-right: 4px;"></i> Help</a>
+        </div>
+
+        <!-- Help Popup Overlay Modal Component -->
+        <div class="modal-overlay" id="helpModal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3>Emergency Assistance Help</h3>
+                    <button class="close-modal-btn" id="closeModal"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: left; padding: 0; margin-bottom: 12px; font-size: 13px;">
+                        Welcome to MediBot. Here's how to navigate your smart first-aid interface:
+                    </p>
+                    <ul>
+                        <li><strong>Login / Sign Up:</strong> Access your historical session charts, customized risk profiles, and save configurations.</li>
+                        <li><strong>Chat View:</strong> Type natural parameters or choose rapid response emergency chip items to prompt guide flows.</li>
+                        <li><strong>Voice Input:</strong> Tap the interactive microphone element to dictate queries on hands-free scenarios.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Controller Script -->
+    <script>
+        const helpLink = document.getElementById('helpLink');
+        const helpModal = document.getElementById('helpModal');
+        const closeModal = document.getElementById('closeModal');
+
+        // Open Modal Event
+        helpLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            helpModal.classList.add('open');
+        });
+
+        // Close Modal Event (X Button)
+        closeModal.addEventListener('click', () => {
+            helpModal.classList.remove('open');
+        });
+
+        // Close Modal Event (Clicking backdrop area)
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.classList.remove('open');
+            }
+        });
+    </script>
 
 </body>
 </html>

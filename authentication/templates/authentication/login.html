@@ -1,147 +1,325 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Login - First Aid Assistant</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MediBot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #f4f7fe;
+            --brand-blue: #0056c6;
+            --brand-teal: #006672;
+            --gradient-start: #0284c7; /* Inspired by image_e157dd.jpg */
+            --gradient-end: #0f766e;   /* Inspired by image_e157dd.jpg */
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+            --alert-bg: #fee2e2;
+            --alert-text: #991b1b;
+        }
 
-<style>
-:root {
-  --primary-start: #0d9488;
-  --primary-end: #059669;
-  --bg-start: #f0fdfa;
-  --bg-end: #ecfdf5;
-  --text-main: #1f2937;
-  --border-default: #e5e7eb;
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            transition: all 0.2s ease;
+        }
 
-* { box-sizing: border-box; }
+        body {
+            background-color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-body {
-  margin: 0;
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: linear-gradient(to bottom, var(--bg-start), var(--bg-end));
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
+        /* MOBILE VIEWPANEL CONTAINER */
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 850px;
+            background-color: var(--bg-main);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 40px 24px; 
+        }
 
-.container {
-  background: white;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  width: 400px;
-}
+        /* BRAND LOGO HIERARCHY BASED ON image_e157dd.jpg */
+        .brand-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
 
-h2 {
-  text-align: center;
-  color: var(--primary-start);
-  margin-bottom: 24px;
-}
+        .logo-icon-box {
+            font-size: 38px;
+            color: var(--brand-teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-form {
-  display: flex;
-  flex-direction: column;
-}
+        .brand-display h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
 
-input {
-  padding: 12px;
-  margin-bottom: 16px;
-  border-radius: 999px;
-  border: 1px solid var(--border-default);
-  font-size: 16px;
-}
+        .brand-display p {
+            font-size: 13px;
+            color: var(--text-gray);
+            font-weight: 500;
+        }
 
-button {
-  padding: 12px;
-  border: none;
-  border-radius: 999px;
-  background: linear-gradient(to right, var(--primary-start), var(--primary-end));
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
+        h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            align-self: flex-start;
+            margin-bottom: 16px;
+        }
 
-button:hover {
-  opacity: 0.9;
-}
+        /* DJANGO MESSAGE NOTIFICATION */
+        .message {
+            background-color: var(--alert-bg);
+            color: var(--alert-text);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
 
-.message {
-  background: #ffedd5;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  color: #92400e;
-  text-align: center;
-}
+        /* AUTH FORM OBJECTS */
+        form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
 
-.links {
-  text-align: center;
-  margin-top: 12px;
-}
+        .field-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
 
-.links a {
-  color: var(--primary-start);
-  font-weight: bold;
-  text-decoration: none;
-}
+        .field-wrapper i.input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--text-gray);
+            font-size: 14px;
+            pointer-events: none;
+        }
 
-.forgot-password {
-  text-align: right;
-  margin-bottom: 16px;
-}
+        .field-wrapper i.toggle-password {
+            position: absolute;
+            right: 16px;
+            color: var(--text-gray);
+            font-size: 14px;
+            cursor: pointer;
+        }
 
-.forgot-password a {
-  color: var(--primary-start);
-  text-decoration: none;
-  font-size: 14px;
-}
-</style>
+        form input {
+            width: 100%;
+            padding: 12px 16px 12px 42px; 
+            border-radius: 30px;
+            border: 1px solid #cbd5e1;
+            background-color: white;
+            font-size: 14px;
+            color: var(--text-dark);
+            outline: none;
+        }
+
+        form input:focus {
+            border-color: var(--brand-teal);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        form input::placeholder {
+            color: #94a3b8;
+        }
+
+        /* INLINE FORGOT PASSWORD LINK */
+        .forgot-password {
+            text-align: right;
+            margin-top: -4px;
+            padding-right: 4px;
+        }
+
+        .forgot-password a {
+            color: var(--brand-teal);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .forgot-password a:hover {
+            color: var(--brand-blue);
+            text-decoration: underline;
+        }
+
+        /* GRADIENT BUTTON BASED ON IMAGE MOCKUP */
+        .btn-gradient {
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .btn-gradient:active {
+            transform: scale(0.99);
+            opacity: 0.95;
+        }
+
+        /* SOCIAL ACCESS DIVIDER */
+        .social-divider {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin: 16px 0;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        .social-divider::before, .social-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+            margin: 0 10px;
+        }
+
+        /* OAUTH THIRD PARTY BUTTON */
+        .btn-oauth {
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            background-color: white;
+            color: var(--text-dark);
+            border: 1px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-oauth:hover {
+            background-color: #f8fafc;
+        }
+
+        /* TIGHT CONTEXT LINKS-HUB FOOTER */
+        .links-hub {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-gray);
+            width: 100%;
+        }
+
+        .links-hub a {
+            color: var(--brand-teal);
+            font-weight: 700;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+
+        .links-hub a:hover {
+            color: var(--brand-blue);
+            text-decoration: underline;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
-  <h2>Login</h2>
+    <div class="app-container">
+        
+        <div class="brand-display">
+            <div class="logo-icon-box">
+                <i class="fa-solid fa-square-plus"></i>
+            </div>
+            <h1>MediBot</h1>
+            <p>First Aid Assistant</p>
+        </div>
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="message">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
+        <h2>Login</h2>
 
-  <form method="post">
-    {% csrf_token %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
 
-    <label for="username">Username</label>
-    <input
-      type="text"
-      id="username"
-      name="username"
-      required
-    >
+        <form method="post">
+            {% csrf_token %}
 
-    <label for="password">Password</label>
-    <input
-      type="password"
-      id="password"
-      name="password"
-      required
-    >
+            <div class="field-wrapper">
+                <i class="fa-regular fa-user input-icon"></i>
+                <input type="text" name="username" placeholder="Email Address / Username" required>
+            </div>
 
-    <!-- Forgot password link -->
-    <div class="forgot-password">
-      <a href="{% url 'password_reset' %}">Forgot Password?</a>
+            <div class="field-wrapper">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" name="password" placeholder="Password" id="loginPass" required>
+                <i class="fa-regular fa-eye-slash toggle-password" onclick="toggleVisibility('loginPass', this)"></i>
+            </div>
+
+            <div class="forgot-password">
+                <a href="{% url 'password_reset' %}">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn-gradient">Log In</button>
+        </form>
+
+        <div class="social-divider">or</div>
+        <button class="btn-oauth">
+            <i class="fa-brands fa-google" style="color: #ea4335;"></i>
+            Sign in with Google/Apple
+        </button>
+
+        <div class="links-hub">
+            Don’t have an account?<a href="{% url 'signup' %}">Sign Up</a>
+        </div>
+
     </div>
 
-    <button type="submit">Login</button>
-  </form>
-
-  <div class="links">
-    Don’t have an account? <a href="{% url 'signup' %}">Sign Up</a>
-  </div>
-</div>
+    <script>
+        function toggleVisibility(inputId, iconEl) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                iconEl.classList.replace("fa-eye-slash", "fa-eye");
+            } else {
+                input.type = "password";
+                iconEl.classList.replace("fa-eye", "fa-eye-slash");
+            }
+        }
+    </script>
 
 </body>
 </html>

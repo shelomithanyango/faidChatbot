@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediBot - Chat History</title>
+  
+  <style>
+    /* Internal CSS */
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+    :root {
+      --primary: #006672;
+      --accent: #38dbff;
+      --bg: #f4f7fe;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #e5e7eb;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 400px;
+      background-color: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+    }
+
+    .content {
+      padding: 20px;
+      padding-bottom: 100px;
+      flex: 1;
+    }
+
+    .card {
+      background: white;
+      padding: 16px;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #f1f5f9;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    .nav-bar {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: white;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-around;
+      padding: 15px 0;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="content" id="mainContent">
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--primary);">
+          <div style="background: white; padding: 8px; border-radius: 12px; font-weight: bold;">+</div>
+          <span style="font-weight: 800; font-size: 1.2rem;">MediBot</span>
+        </div>
+      </div>
+
+      <h1 style="font-size: 1.5rem; margin-bottom: 4px;">Chat History</h1>
+      <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 20px;">Review your past first-aid consultations.</p>
+
+      <!-- History List Simulation -->
+      <div class="card" onclick="alert('Opening Severe Headache log...')">
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <div style="width: 40px; height: 40px; background: #fef2f2; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #ef4444;">*</div>
+          <div>
+            <div style="font-weight: 700;">Severe Headache</div>
+            <div style="font-size: 0.7rem; color: #94a3b8;">Jan 12, 2023 • 14 mins</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" onclick="alert('Opening Ankle Sprain log...')">
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <div style="width: 40px; height: 40px; background: #ecfeff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0891b2;">↔</div>
+          <div>
+            <div style="font-weight: 700;">Ankle Sprain</div>
+            <div style="font-size: 0.7rem; color: #94a3b8;">Jan 12, 2023 • 8 mins</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Button -->
+      <div style="background: var(--primary); color: white; padding: 20px; border-radius: 16px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 700; font-size: 0.9rem;">Export History</div>
+          <div style="font-size: 0.75rem; opacity: 0.8;">Share logs with your doctor.</div>
+        </div>
+        <button id="exportBtn" style="background: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; color: var(--primary); cursor: pointer;">
+          Export PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-bar">
+      <a href="{% url 'chat:chat' %}"class="nav-item"><i class="fa-regular fa-comment-dots"></i><span>Chat</span></a>
+
+        <a href="{% url 'history:history' %}" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i><span>History</span></a>
+        <a href="{% url 'profile_view:profile' %}" class="nav-item active"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+    </div>
+  </div>
+
+  <script>
+    // Internal JavaScript
+    
+    // Simple navigation handler
+    function navigate(page) {
+      console.log("Navigating to: " + page);
+      const items = document.querySelectorAll('.nav-item');
+      items.forEach(item => {
+        item.classList.remove('active');
+        if(item.innerText.includes(page)) item.classList.add('active');
+      });
+    }
+
+    // Export functionality
+    document.getElementById('exportBtn').addEventListener('click', function() {
+      console.log("Exporting PDF...");
+      alert("Generating your medical report for export...");
+    });
+
+    // Console greeting
+    console.log("MediBot History UI Loaded from Screenshot from 2026-06-01 12-48-57.png");
+  </script>
+</body>
+</html>
