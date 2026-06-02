@@ -11,10 +11,11 @@ google-api-core==2.29.0
 google-api-python-client==2.188.0
 google-auth==2.47.0
 google-auth-httplib2==0.3.0
-google-genai== 2.6.0
+google-genai==2.6.0
 googleapis-common-protos==1.72.0
 grpcio==1.76.0
 grpcio-status==1.71.2
+gunicorn==25.0.1
 h11==0.16.0
 httpcore==1.0.9
 httplib2==0.31.2
@@ -44,8 +45,3 @@ typing_extensions==4.15.0
 uritemplate==4.2.0
 urllib3==2.6.3
 websockets==15.0.1
-python-decouple==3.8
-gunicorn==25.0.1
-
-gunicorn==25.0.1
-gunicorn==25.0.1
