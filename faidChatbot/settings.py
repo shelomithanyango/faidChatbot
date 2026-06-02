@@ -34,6 +34,7 @@ ALLOWED_HOSTS = [
     'localhost',
     'laborious-brande-relievedly.ngrok-free.dev',
      'faidchatbot.onrender.com',
+     '.vercel.app',
 ]
 
 
