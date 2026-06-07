@@ -11,8 +11,8 @@
             --bg-main: #f4f7fe;
             --brand-blue: #0056c6;
             --brand-teal: #006672;
-            --gradient-start: #0284c7; /* Inspired by image_e157dd.jpg */
-            --gradient-end: #0f766e;   /* Inspired by image_e157dd.jpg */
+            --gradient-start: #0284c7; 
+            --gradient-end: #0f766e;   
             --text-dark: #1e293b;
             --text-gray: #64748b;
             --alert-bg: #fee2e2;
@@ -33,16 +33,14 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 20px;
         }
 
-        /* MOBILE VIEWPANEL CONTAINER */
-        .app-container {
+        /* CARD ONLY - NO RIGID HEIGHT CONTAINER */
+        .auth-card {
             width: 100%;
             max-width: 400px;
-            height: 850px;
             background-color: var(--bg-main);
-            position: relative;
-            overflow: hidden;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             border-radius: 20px;
             display: flex;
@@ -52,7 +50,6 @@
             padding: 40px 24px; 
         }
 
-        /* BRAND LOGO HIERARCHY BASED ON image_e157dd.jpg */
         .brand-display {
             display: flex;
             flex-direction: column;
@@ -89,7 +86,6 @@
             margin-bottom: 16px;
         }
 
-        /* DJANGO MESSAGE NOTIFICATION */
         .message {
             background-color: var(--alert-bg);
             color: var(--alert-text);
@@ -103,7 +99,6 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-        /* AUTH FORM OBJECTS */
         form {
             width: 100%;
             display: flex;
@@ -154,7 +149,6 @@
             color: #94a3b8;
         }
 
-        /* INLINE FORGOT PASSWORD LINK */
         .forgot-password {
             text-align: right;
             margin-top: -4px;
@@ -173,7 +167,6 @@
             text-decoration: underline;
         }
 
-        /* GRADIENT BUTTON BASED ON IMAGE MOCKUP */
         .btn-gradient {
             width: 100%;
             padding: 12px;
@@ -194,7 +187,6 @@
             opacity: 0.95;
         }
 
-        /* SOCIAL ACCESS DIVIDER */
         .social-divider {
             display: flex;
             align-items: center;
@@ -211,7 +203,6 @@
             margin: 0 10px;
         }
 
-        /* OAUTH THIRD PARTY BUTTON */
         .btn-oauth {
             width: 100%;
             padding: 12px;
@@ -233,7 +224,6 @@
             background-color: #f8fafc;
         }
 
-        /* TIGHT CONTEXT LINKS-HUB FOOTER */
         .links-hub {
             margin-top: 20px;
             text-align: center;
@@ -254,10 +244,16 @@
             text-decoration: underline;
         }
     </style>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="auth-card">
         
         <div class="brand-display">
             <div class="logo-icon-box">

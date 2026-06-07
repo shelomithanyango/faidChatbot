@@ -8,14 +8,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root {
+        /* THEME VARIABLES SETUP */
+        :root, html[data-theme="light"] {
             --bg-main: #f4f7fe;
-            --brand-blue: #0056c6;
-            --brand-teal: #006672;
-            --gradient-start: #0284c7; /* Inspired by image_e157dd.jpg */
-            --gradient-end: #0f766e;   /* Inspired by image_e157dd.jpg */
+            --bg-body: #e2e8f0;
+            --card-bg: #f4f7fe;
             --text-dark: #1e293b;
             --text-gray: #64748b;
+            --border-color: #cbd5e1;
+            --btn-oauth-bg: #ffffff;
+            --modal-bg: #ffffff;
+            
+            --brand-blue: #0056c6;
+            --brand-teal: #006672;
+            --gradient-start: #0284c7;
+            --gradient-end: #0f766e;
+        }
+
+        html[data-theme="dark"] {
+            --bg-main: #0f172a;
+            --bg-body: #020617;
+            --card-bg: #1e293b;
+            --text-dark: #f8fafc;
+            --text-gray: #94a3b8;
+            --border-color: #334155;
+            --btn-oauth-bg: #1e293b;
+            --modal-bg: #1e293b;
+            
+            --brand-blue: #38bdf8;
+            --brand-teal: #2dd4bf;
+            --gradient-start: #0369a1;
+            --gradient-end: #115e59;
         }
 
         * {
@@ -23,45 +46,48 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            transition: all 0.2s ease;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         body {
-            background-color: #e2e8f0;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 20px;
         }
 
-        /* MOBILE VIEWPANEL CONTAINER */
-        .app-container {
+        /* CONVERTED CONTAINER TO A FULL RESPONSIVE SCREEN WRAPPER */
+        .app-wrapper {
             width: 100%;
-            max-width: 400px;
-            height: 850px;
-            background-color: var(--bg-main);
+            max-width: 500px;
+            background-color: var(--card-bg);
             position: relative;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             border-radius: 20px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
             padding: 40px 24px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
 
-        /* BRAND LOGO HIERARCHY BASED ON image_e157dd.jpg */
+        
+
+        /* BRAND DISPLAY COMPONENTS */
         .brand-display {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 8px;
             margin-bottom: 24px;
+            margin-top: 20px; /* Space clear of the floating toggle */
         }
 
         .logo-icon-box {
-            font-size: 38px;
+            font-size: 42px;
             color: var(--brand-teal);
             display: flex;
             align-items: center;
@@ -69,44 +95,41 @@
         }
 
         .brand-display h1 {
-            font-size: 22px;
+            font-size: 26px;
             font-weight: 700;
             color: var(--text-dark);
         }
 
         .brand-display p.subtitle {
-            font-size: 13px;
+            font-size: 14px;
             color: var(--text-gray);
             font-weight: 500;
-            margin-bottom: 0;
-            padding: 0;
         }
 
-        /* INTRO EXPLANATORY TEXT */
+        /* TEXT LAYOUTS */
         p.intro-text {
             color: var(--text-gray);
-            font-size: 14px;
+            font-size: 15px;
             line-height: 1.6;
             text-align: center;
             margin-bottom: 32px;
             padding: 0 12px;
         }
 
-        /* ACTION BUTTON BLOCK */
+        /* ACTION MATRIX */
         .action-group {
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
 
-        /* CTA BUTTONS */
         .btn {
             display: block;
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border-radius: 30px;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             text-align: center;
             text-decoration: none;
@@ -114,7 +137,6 @@
             border: none;
         }
 
-        /* GRADIENT BUTTON BASED ON IMAGE MOCKUP */
         .btn-gradient {
             background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
             color: white;
@@ -122,71 +144,72 @@
         }
 
         .btn-gradient:active {
-            transform: scale(0.99);
+            transform: scale(0.98);
             opacity: 0.95;
         }
 
         .btn-outline {
-            background-color: white;
+            background-color: transparent;
             color: var(--text-dark);
-            border: 1px solid #cbd5e1;
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        html[data-theme="dark"] .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.02);
         }
 
         .btn-outline:active {
-            transform: scale(0.99);
-            background-color: #f8fafc;
+            transform: scale(0.98);
         }
 
-        /* SOCIAL ACCESS DIVIDER */
+        /* ACCESS SEPARATORS */
         .social-divider {
             display: flex;
             align-items: center;
             width: 100%;
-            margin: 16px 0;
-            color: #94a3b8;
-            font-size: 12px;
+            margin: 20px 0;
+            color: var(--text-gray);
+            font-size: 13px;
         }
         .social-divider::before, .social-divider::after {
             content: "";
             flex: 1;
             height: 1px;
-            background: #e2e8f0;
+            background: var(--border-color);
             margin: 0 10px;
         }
 
-        /* OAUTH THIRD PARTY BUTTON */
+        /* OAUTH INTEGRATIONS */
         .btn-oauth {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border-radius: 30px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
-            background-color: white;
+            background-color: var(--btn-oauth-bg);
             color: var(--text-dark);
-            border: 1px solid #cbd5e1;
+            border: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             cursor: pointer;
-            text-decoration: none;
         }
 
-        .btn-oauth:hover {
-            background-color: #f8fafc;
-        }
-
-        /* TIGHT CONTEXT LINKS-HUB FOOTER */
+        /* CORE FOOTER NAVIGATION ELEMENTS */
         .links-hub {
-            margin-top: auto; /* Keeps navigation items neatly pinned to footer bounds */
+            margin-top: 40px;
             display: flex;
-            gap: 24px;
+            gap: 32px;
             align-items: center;
         }
 
         .links-hub a {
             color: var(--brand-teal);
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             text-decoration: none;
             cursor: pointer;
@@ -197,14 +220,14 @@
             text-decoration: underline;
         }
 
-        /* HELP POPUP MODAL STYLES */
+        /* SYSTEM MODAL INTERFACE COMPONENTS */
         .modal-overlay {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(30, 41, 59, 0.4);
+            background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(4px);
             display: flex;
             justify-content: center;
@@ -220,11 +243,12 @@
         }
 
         .modal-card {
-            background: white;
-            width: 85%;
+            background: var(--modal-bg);
+            width: 90%;
+            max-width: 400px;
             border-radius: 20px;
             padding: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
             transform: scale(0.9);
             text-align: left;
         }
@@ -242,39 +266,45 @@
         }
 
         .modal-header h3 {
-            font-size: 18px;
+            font-size: 19px;
             font-weight: 800;
         }
 
         .close-modal-btn {
             background: none;
             border: none;
-            font-size: 18px;
+            font-size: 20px;
             color: var(--text-gray);
             cursor: pointer;
         }
 
         .modal-body {
-            font-size: 13px;
+            font-size: 14px;
             color: var(--text-dark);
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         .modal-body ul {
             margin-top: 8px;
-            padding-left: 16px;
+            padding-left: 18px;
         }
 
         .modal-body li {
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
     </style>
+    
+    <!-- INITIALIZE HEAD THEME ROUTINE (Prevents screen flashing white on dark mode reload) -->
+   
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="app-wrapper">
         
-        <!-- Premium Header Setup from image_e157dd.jpg -->
+        
+        
+        
+        <!-- Header setup -->
         <div class="brand-display">
             <div class="logo-icon-box">
                 <i class="fa-solid fa-square-plus"></i>
@@ -295,16 +325,21 @@
             <a href="{% url 'signup' %}" class="btn btn-outline">Sign Up</a>
         </div>
 
-        <!-- Direct Social Integrations Layer -->
-        <div class="social-divider">or</div>
+       {% load socialaccount %}
+       <form action="{% provider_login_url 'google' %}" method="post">
+          {% csrf_token %}
+           <div class="social-divider">or</div>
         <button class="btn-oauth">
             <i class="fa-brands fa-google" style="color: #ea4335;"></i>
-            Sign in with Google/Apple
+            Sign in with Google
         </button>
+
+       </form>
+        
 
         <!-- Structural Navigation Base Footer Links -->
         <div class="links-hub">
-            <a href="{% url 'homepage' %}"><i class="fa-solid fa-house" style="font-size: 12px; margin-right: 4px;"></i> Home</a>
+            <a href="{% url 'homepage:home' %}"><i class="fa-solid fa-house" style="font-size: 12px; margin-right: 4px;"></i> Home</a>
             <a id="helpLink"><i class="fa-regular fa-circle-question" style="font-size: 12px; margin-right: 4px;"></i> Help</a>
         </div>
 
@@ -330,24 +365,20 @@
 
     </div>
 
-    <!-- Modal Controller Script -->
+    <!-- UI Controllers & Theme Matrix Engine -->
     <script>
-        const helpLink = document.getElementById('helpLink');
-        const helpModal = document.getElementById('helpModal');
-        const closeModal = document.getElementById('closeModal');
+   
 
-        // Open Modal Event
+        // --- HELPER DIALOG MODAL LAYOUT EVENTS ---
         helpLink.addEventListener('click', (e) => {
             e.preventDefault();
             helpModal.classList.add('open');
         });
 
-        // Close Modal Event (X Button)
         closeModal.addEventListener('click', () => {
             helpModal.classList.remove('open');
         });
 
-        // Close Modal Event (Clicking backdrop area)
         helpModal.addEventListener('click', (e) => {
             if (e.target === helpModal) {
                 helpModal.classList.remove('open');

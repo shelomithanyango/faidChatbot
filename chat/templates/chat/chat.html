@@ -4,62 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediBot - Chat Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* ==================== CONFIGURATION VARIABLES ==================== */
         :root {
-            --bg-main: #f4f7fe;
-            --brand-blue: #0056c6;
-            --brand-teal: #006672;
-            --gradient-start: #0284c7;
-            --gradient-end: #0f766e;
-            --chat-bubble-bot: #eff4ff;
+            --bg-body: #f4f7fe;
+            --bg-card: #ffffff;
+            --bg-input: #f8fafc;
+            --border-color: rgba(226, 232, 240, 0.8);
+            --brand-teal: #006672; /* Official MediBot Blue */
+            --gradient-start: #006672;
+            --gradient-end: #00454e;
+            --chat-bubble-bot: #eff6f7;
             --text-dark: #1e293b;
             --text-gray: #64748b;
+            --text-nav: #94a3b8;
+            --shadow-opacity: 0.03;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            transition: all 0.2s ease;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
         }
 
         body {
-            background-color: #e2e8f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* MOBILE CONTAINER OVERALL */
-        .app-container {
-            width: 100%;
-            max-width: 400px;
-            height: 850px;
-            background-color: var(--bg-main);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border-radius: 20px;
+            background-color: var(--bg-body);
             display: flex;
             flex-direction: column;
-            padding-top: 16px;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
         }
 
-        /* TOP BRAND NAVIGATION BAR EMBEDDED IN A CARD */
+        /* TOP BRAND NAVIGATION BAR */
         .top-navbar-card {
-            background: white;
-            margin: 0 16px 12px 16px;
-            padding: 12px 16px;
-            border-radius: 18px;
+            background: var(--bg-card);
+            padding: 14px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 12px rgba(0,0,0,var(--shadow-opacity));
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10;
+            width: 100%;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
         }
 
         .brand-logo {
@@ -68,36 +75,169 @@
             gap: 8px;
             color: var(--brand-teal);
             font-weight: 700;
-            font-size: 16px;
+            font-size: 18px;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* CIRCULAR OUTER RING ONLY */
+        .avatar-container {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1.5px solid var(--brand-teal);
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
 
         .avatar-top {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            border: 1.5px solid var(--brand-teal);
+        }
+
+        /* SIDEBAR NAVIGATION DRAWERS */
+        .sidebar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 99;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar-menu {
+            position: absolute;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background: var(--bg-card);
+            z-index: 100;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px 20px;
+            transition: left 0.3s ease;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar-menu.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--brand-teal);
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .close-sidebar-btn {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .sidebar-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .sidebar-link:hover, .sidebar-link.active {
+            background: rgba(0, 102, 114, 0.1);
+            color: var(--brand-teal);
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 16px;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 12px 16px;
+            color: #ef4444;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 12px;
+            text-align: left;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
         }
 
         /* MAIN INNER CHAT WINDOW BOX */
         .chat-window {
-            background: white;
-            margin: 0 16px 90px 16px;
-            border-radius: 24px;
+            background: var(--bg-card);
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.03);
-            border: 1px solid rgba(226, 232, 240, 0.8);
             overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
         }
 
-        /* CHAT WINDOW PROFILE HEADER */
+        /* CHAT WINDOW HEADER */
         .chat-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 16px;
+            padding: 16px 24px;
             background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
             color: white;
         }
@@ -109,25 +249,25 @@
         }
 
         .bot-avatar-icon {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             background-color: rgba(255, 255, 255, 0.2);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .bot-title h2 {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             color: white;
         }
 
         .bot-title p {
-            font-size: 9px;
+            font-size: 10px;
             color: rgba(255, 255, 255, 0.8);
             text-transform: uppercase;
             font-weight: 700;
@@ -146,7 +286,7 @@
         /* MESSAGES STREAM AREA */
         .message-area {
             flex-grow: 1;
-            padding: 16px;
+            padding: 24px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -161,30 +301,30 @@
         .bubble-user {
             background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
             color: white;
-            padding: 12px 16px;
+            padding: 12px 18px;
             border-radius: 16px 16px 4px 16px;
-            font-size: 13px;
-            max-width: 80%;
-            line-height: 1.4;
-            box-shadow: 0 2px 8px rgba(15, 118, 110, 0.15);
+            font-size: 14px;
+            max-width: 75%;
+            line-height: 1.5;
+            box-shadow: 0 4px 12px rgba(0, 102, 114, 0.15);
         }
 
         .msg-row-bot {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: flex-start;
         }
 
         .mini-bot-icon {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             background-color: var(--brand-teal);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 12px;
             flex-shrink: 0;
             margin-top: 4px;
         }
@@ -192,10 +332,10 @@
         .bubble-bot {
             background-color: var(--chat-bubble-bot);
             color: var(--text-dark);
-            padding: 14px 16px;
+            padding: 14px 18px;
             border-radius: 4px 16px 16px 16px;
-            font-size: 13px;
-            max-width: 85%;
+            font-size: 14px;
+            max-width: 75%;
             line-height: 1.5;
         }
 
@@ -203,7 +343,7 @@
         .suggestions-container {
             display: flex;
             gap: 8px;
-            padding: 0 16px 12px 16px;
+            padding: 0 24px 12px 24px;
             overflow-x: auto;
         }
         .suggestions-container::-webkit-scrollbar { display: none; }
@@ -211,7 +351,7 @@
         .chip {
             padding: 8px 16px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             white-space: nowrap;
             cursor: pointer;
@@ -224,42 +364,42 @@
         }
 
         .chip.outline {
-            background-color: white;
+            background-color: var(--bg-card);
             color: var(--brand-teal);
-            border: 1px solid #cbd5e1;
+            border: 1px solid var(--border-color);
         }
 
         /* INPUT ACTIONS PILL */
         .input-bar-container {
-            padding: 0 16px 16px 16px;
+            padding: 0 24px 24px 24px;
         }
 
         .input-wrapper {
             display: flex;
             align-items: center;
-            background-color: #f8fafc;
-            border: 1px solid #cbd5e1;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
             border-radius: 30px;
-            padding: 6px;
+            padding: 8px;
         }
 
         .input-wrapper input {
             flex-grow: 1;
             border: none;
             background: transparent;
-            font-size: 13px;
+            font-size: 14px;
             color: var(--text-dark);
             outline: none;
-            padding-left: 10px;
+            padding-left: 12px;
         }
 
         .input-wrapper input::placeholder {
-            color: #a0aec0;
+            color: var(--text-gray);
         }
 
         .action-btn {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
             color: white;
             border: none;
@@ -272,40 +412,43 @@
         }
 
         .action-btn.mic-mode {
-            background: white;
+            background: var(--bg-card);
             color: var(--text-gray);
-            border: 1px solid #cbd5e1;
+            border: 1px solid var(--border-color);
+            margin-right: 4px;
         }
 
-        /* PERSISTENT CONTAINER NAVIGATION */
+        /* PERSISTENT NAVIGATION FOOTER */
         .bottom-nav {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            background: white;
+            background: var(--bg-card);
             display: flex;
             justify-content: space-around;
-            padding: 12px 0 22px 0;
-            border-top: 1px solid #f1f5f9;
-            z-index: 10;
+            padding: 12px 0;
+            border-top: 1px solid var(--border-color);
+            width: 100%;
         }
 
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: #94a3b8;
+            color: var(--text-nav);
             text-decoration: none;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
             gap: 4px;
+            flex: 1;
+        }
+
+        .nav-item.active {
+            color: var(--brand-teal);
         }
 
         .nav-item.active i {
-            background: #e6f6f8;
-            padding: 6px 16px;
+            background: rgba(0, 102, 114, 0.1);
+            padding: 6px 24px;
             border-radius: 16px;
-            font-size: 15px;
+            font-size: 16px;
             color: var(--brand-teal);
         }
         
@@ -314,106 +457,176 @@
 </head>
 <body>
 
-    <div class="app-container">
+    <!-- SIDEBAR NAVIGATION DRAWERS -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar-menu" id="sidebarMenu">
+        <div>
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <i class="fa-solid fa-briefcase-medical"></i>
+                    <span>MediBot Navigation</span>
+                </div>
+                <button class="close-sidebar-btn" id="closeSidebar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <nav class="sidebar-nav-links">
+                <a href="{% url 'chat:chat' %}" class="sidebar-link active">
+                    <i class="fa-solid fa-comment-dots"></i> Chat Assistant
+                </a>
+                <a href="{% url 'history:history' %}" class="sidebar-link">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Medical History
+                </a>
+                <a href="{% url 'profiles:profile' %}" class="sidebar-link">
+                    <i class="fa-regular fa-user"></i> Profile Details
+                </a>
+            </nav>
+        </div>
 
-        <!-- Top Header Card Module Component -->
-        <div class="top-navbar-card">
+        <div class="sidebar-footer">
+            <a href="{% url 'homepage:home' %}" class="logout-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> 
+                <span>Logout Session</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- TOP BAR PANEL -->
+    <div class="top-navbar-card">
+        <div class="navbar-left">
+            <button class="hamburger-btn" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
             <div class="brand-logo">
-                <i class="fa-solid fa-square-plus"></i>
+                <i class="fa-solid fa-briefcase-medical"></i>
                 <span>MediBot</span>
             </div>
-            <img src="https://images.unsplash.com/photo-1594824813573-246434e3b96a?auto=format&fit=crop&q=80&w=100"
-                 class="avatar-top" alt="Doctor profile">
         </div>
-
-        <div class="chat-window">
-
-            <div class="chat-header">
-                <div class="bot-profile">
-                    <div class="bot-avatar-icon">
-                        <i class="fa-solid fa-square-plus"></i>
-                    </div>
-                    <div class="bot-title">
-                        <h2>MediBot AI</h2>
-                        <p>First Aid Assistant</p>
-                    </div>
-                </div>
-                <button class="menu-dots"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-            </div>
-
-            <!-- CHAT STREAM -->
-            <div class="message-area">
-                {% if user_message %}
-                <div class="msg-row-user">
-                    <div class="bubble-user">{{ user_message }}</div>
-                </div>
+        
+        <div class="navbar-right">
+            <!-- CIRCULAR CONTAINER - ENTIRELY EMPTY UNTIL REAL IMAGE DETECTED -->
+            <div class="avatar-container">
+                {% if user.profile.image %}
+                    <img src="{{ user.profile.image.url }}" class="avatar-top" alt="User profile picture">
                 {% endif %}
+            </div>
+        </div>
+    </div>
 
-                <div class="msg-row-bot">
-                    <div class="mini-bot-icon"><i class="fa-solid fa-plus"></i></div>
-                    <div class="bubble-bot">
-                        {{ reply }}
-                    </div>
+    <!-- CHAT FRAME WRAPPER -->
+    <div class="chat-window">
+
+        <div class="chat-header">
+            <div class="bot-profile">
+                <div class="bot-avatar-icon">
+                    <i class="fa-solid fa-briefcase-medical"></i>
+                </div>
+                <div class="bot-title">
+                    <h2>MediBot AI</h2>
+                    <p>First Aid Assistant</p>
                 </div>
             </div>
-
-            <!-- Suggestion Quick-Chips Wrapper -->
-            <form method="POST" id="quickForm">
-                {% csrf_token %}
-                <input type="hidden" name="message" id="quickMessage">
-
-                <div class="suggestions-container">
-                    <div class="chip gradient-filled" onclick="sendQuick('CPR Instructions')">
-                        CPR Instructions
-                    </div>
-                    <div class="chip outline" onclick="sendQuick('Burn Treatment')">
-                        Burn Treatment
-                    </div>
-                    <div class="chip outline" onclick="sendQuick('Choking Aid')">
-                        Choking Aid
-                    </div>
-                </div>
-            </form>
-
-            <!-- INPUT FORM -->
-            <form method="POST" class="input-bar-container">
-                {% csrf_token %}
-
-                <div class="input-wrapper">
-                    <button type="button" class="action-btn mic-mode" id="micButton">
-                        <i class="fa-solid fa-microphone"></i>
-                    </button>
-
-                    <input type="text"
-                           id="userInputText"
-                           name="message"
-                           placeholder="Ask about burns, cuts, CPR..."
-                           required>
-
-                    <button type="submit" class="action-btn">
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </div>
-            </form>
-
+            <button class="menu-dots"><i class="fa-solid fa-ellipsis-vertical"></i></button>
         </div>
 
-        <nav class="bottom-nav">
-            <a href="{% url 'chat:chat' %}" class="nav-item active"><i class="fa-solid fa-comment-dots"></i>Chat</a>
-            <a href="{% url 'history:history' %}" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i>History</a>
-            <a href="{% url 'profile_view:profile' %}" class="nav-item"><i class="fa-regular fa-user"></i>Profile</a>
-        </nav>
+        <div class="message-area">
+            {% if user_message %}
+            <div class="msg-row-user">
+                <div class="bubble-user">{{ user_message }}</div>
+            </div>
+            {% endif %}
+
+            <div class="msg-row-bot">
+                <div class="mini-bot-icon"><i class="fa-solid fa-user-medical"></i></div>
+                <div class="bubble-bot">
+                    {{ reply|default:"Hello! I can guide you through this. Please stay calm. For a small cut, apply direct pressure with a clean cloth." }}
+                </div>
+            </div>
+        </div>
+
+        <!-- CHIP FORM ACTION -->
+        <form method="POST" id="quickForm">
+            {% csrf_token %}
+            <input type="hidden" name="message" id="quickMessage">
+
+            <div class="suggestions-container">
+                <div class="chip gradient-filled" onclick="selectChip(this, 'CPR Instructions')">CPR</div>
+                <div class="chip outline" onclick="selectChip(this, 'Burn Treatment')">Burns</div>
+                <div class="chip outline" onclick="selectChip(this, 'Choking Aid')">Choking</div>
+                <div class="chip outline" onclick="selectChip(this, 'Suffocation')">Suffocation</div>
+            </div>
+        </form>
+
+        <!-- INPUT FIELD FORM -->
+        <form method="POST" class="input-bar-container">
+            {% csrf_token %}
+
+            <div class="input-wrapper">
+                <button type="button" class="action-btn mic-mode" id="micButton">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+
+                <input type="text"
+                       id="userInputText"
+                       name="message"
+                       placeholder="Ask about burns, cuts, CPR..."
+                       required>
+
+                <button type="submit" class="action-btn">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </form>
 
     </div>
 
+    <!-- PERSISTENT NAVIGATION FOOTER -->
+    <nav class="bottom-nav">
+        <a href="{% url 'chat:chat' %}" class="nav-item active"><i class="fa-solid fa-comment-dots"></i>Chat</a>
+        <a href="{% url 'history:history' %}" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i>History</a>
+        <a href="{% url 'profiles:profile' %}" class="nav-item"><i class="fa-regular fa-user"></i>Profile</a>
+    </nav>
+
+    <!-- MAIN CONTROL INTERACTION SCRIPTS -->
     <script>
-        function sendQuick(text) {
+        // Hamburger Sidebar Navigation Interactions
+        const openSidebarBtn = document.getElementById('openSidebar');
+        const closeSidebarBtn = document.getElementById('closeSidebar');
+        const sidebarMenu = document.getElementById('sidebarMenu');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar(open) {
+            if (open) {
+                sidebarMenu.classList.add('open');
+                sidebarOverlay.classList.add('open');
+            } else {
+                sidebarMenu.classList.remove('open');
+                sidebarOverlay.classList.remove('open');
+            }
+        }
+
+        openSidebarBtn.addEventListener('click', () => toggleSidebar(true));
+        closeSidebarBtn.addEventListener('click', () => toggleSidebar(false));
+        sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
+
+        // Quick Suggestion Submit Handler with Highlight Swapping
+        function selectChip(element, text) {
             event.preventDefault();
+            
+            // Remove gradient from all chips
+            const chips = document.querySelectorAll('.chip');
+            chips.forEach(chip => {
+                chip.classList.remove('gradient-filled');
+                chip.classList.add('outline');
+            });
+
+            // Apply gradient style to selected target
+            element.classList.remove('outline');
+            element.classList.add('gradient-filled');
+
+            // Dispatch submission form
             document.getElementById("quickMessage").value = text;
             document.getElementById("quickForm").submit();
         }
 
-        // Speech-to-text recognition runtime setup
+        // Speech recognition architecture
         const micButton = document.getElementById("micButton");
         const inputField = document.getElementById("userInputText");
 
@@ -430,7 +643,7 @@
             };
 
             recognition.onend = function() {
-                micButton.style.background = 'white';
+                micButton.style.background = 'var(--bg-card)';
                 micButton.style.color = 'var(--text-gray)';
             };
 

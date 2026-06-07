@@ -1,169 +1,508 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MediBot - Chat History</title>
-  
-  <style>
-    /* Internal CSS */
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediBot - Chat History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ==================== CONFIGURATION VARIABLES ==================== */
+        :root {
+            --medibot-blue: #006672;
+            --bg-body: #f4f7fc;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --accent-red: #faeae8;
+            --text-red: #d9381e;
+            --border-color: #e2e8f0;
+            --nav-active: #006672;
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
 
-    :root {
-      --primary: #006672;
-      --accent: #38dbff;
-      --bg: #f4f7fe;
-    }
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --card-bg: #1e293b;
+            --text-dark: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --accent-red: #451a1a;
+            --text-red: #fca5a5;
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
 
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #e5e7eb;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
 
-    .app-container {
-      width: 100%;
-      max-width: 400px;
-      background-color: var(--bg);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-      overflow: hidden;
-    }
+        html, body {
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            min-height: 100vh;
+            width: 100%;
+        }
 
-    .content {
-      padding: 20px;
-      padding-bottom: 100px;
-      flex: 1;
-    }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
 
-    .card {
-      background: white;
-      padding: 16px;
-      border-radius: 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border: 1px solid #f1f5f9;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+        /* ==================== STRUCTURAL HEADER LAYOUT ==================== */
+        .app-header {
+            background: var(--card-bg);
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
 
-    .card:hover {
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
 
-    .nav-bar {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background: white;
-      border-top: 1px solid #f1f5f9;
-      display: flex;
-      justify-content: space-around;
-      padding: 15px 0;
-    }
+        .hamburger-btn {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px;
+        }
 
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 10px;
-      font-weight: 600;
-      color: #94a3b8;
-      cursor: pointer;
-    }
+        .app-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--medibot-blue);
+            font-size: 22px;
+            font-weight: 700;
+        }
 
-    .nav-item.active {
-      color: var(--accent);
-    }
-  </style>
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .theme-toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .mini-avatar-container {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1.5px solid var(--medibot-blue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 102, 114, 0.1);
+            color: var(--medibot-blue);
+            overflow: hidden;
+        }
+
+        .mini-avatar-container i {
+            font-size: 16px;
+        }
+
+        .mini-avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        /* ==================== RESPONSIVE MAIN CONTENT GRID ==================== */
+        .main-content {
+            flex: 1;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 5% 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ==================== INFO & LOG SECTIONS ==================== */
+        .info-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-card);
+        }
+
+        .section-header {
+            color: var(--medibot-blue);
+            font-weight: bold;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+
+        .section-header h3 {
+            font-size: 19px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: -8px;
+            margin-bottom: 20px;
+        }
+
+        /* ==================== CHAT HISTORY CARDS ==================== */
+        .log-item {
+            width: 100%;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .log-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .log-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 14px;
+            flex-shrink: 0;
+            background-color: rgba(0, 102, 114, 0.1);
+            color: var(--medibot-blue);
+        }
+
+        .log-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .log-title {
+            color: var(--text-dark);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .log-meta {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .arrow-right {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Export Dashboard Panel */
+        .export-panel {
+            background: linear-gradient(135deg, var(--medibot-blue), #00454e);
+            color: white;
+            padding: 24px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: flex-start;
+            margin-top: 12px;
+            box-shadow: var(--shadow-card);
+        }
+
+        @media (min-width: 576px) {
+            .export-panel {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .export-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .export-text {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .btn-export {
+            background: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-weight: 700;
+            color: var(--medibot-blue);
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-export:hover {
+            background-color: #f8fafc;
+        }
+
+        /* ==================== SIDENAV INTERFACE DRAWER ==================== */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .sidebar-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: var(--card-bg);
+            z-index: 999;
+            box-shadow: 4px 0 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 32px 24px;
+            transition: left 0.3s ease;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar-menu.open { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .sidebar-brand { display: flex; align-items: center; gap: 10px; color: var(--medibot-blue); font-weight: 700; font-size: 18px; }
+        .close-sidebar-btn { background: none; border: none; color: var(--text-dark); font-size: 20px; cursor: pointer; }
+        
+        .sidebar-nav-links { display: flex; flex-direction: column; gap: 10px; flex-grow: 1; }
+        .sidebar-link { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 12px; color: var(--text-muted); text-decoration: none; font-size: 15px; font-weight: 600; }
+        .sidebar-link:hover, .sidebar-link.active { background: rgba(0, 102, 114, 0.1); color: var(--medibot-blue); }
+        
+        .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; }
+        .logout-btn { display: flex; align-items: center; gap: 14px; width: 100%; background: none; border: none; padding: 14px 18px; color: #ef4444; font-size: 15px; font-weight: 600; cursor: pointer; border-radius: 12px; text-decoration: none; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); }
+
+        /* ==================== BOTTOM SYSTEM NAV BAR ==================== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 10px;
+            z-index: 40;
+        }
+
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 12px; font-weight: 500; }
+        .nav-item i { font-size: 22px; }
+        .nav-item.active { color: var(--nav-active); }
+    </style>
+
 </head>
 <body>
 
-  <div class="app-container">
-    <div class="content" id="mainContent">
-      <!-- Header -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; gap: 8px; color: var(--primary);">
-          <div style="background: white; padding: 8px; border-radius: 12px; font-weight: bold;">+</div>
-          <span style="font-weight: 800; font-size: 1.2rem;">MediBot</span>
-        </div>
-      </div>
-
-      <h1 style="font-size: 1.5rem; margin-bottom: 4px;">Chat History</h1>
-      <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 20px;">Review your past first-aid consultations.</p>
-
-      <!-- History List Simulation -->
-      <div class="card" onclick="alert('Opening Severe Headache log...')">
-        <div style="display: flex; gap: 12px; align-items: center;">
-          <div style="width: 40px; height: 40px; background: #fef2f2; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #ef4444;">*</div>
-          <div>
-            <div style="font-weight: 700;">Severe Headache</div>
-            <div style="font-size: 0.7rem; color: #94a3b8;">Jan 12, 2023 • 14 mins</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" onclick="alert('Opening Ankle Sprain log...')">
-        <div style="display: flex; gap: 12px; align-items: center;">
-          <div style="width: 40px; height: 40px; background: #ecfeff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0891b2;">↔</div>
-          <div>
-            <div style="font-weight: 700;">Ankle Sprain</div>
-            <div style="font-size: 0.7rem; color: #94a3b8;">Jan 12, 2023 • 8 mins</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Export Button -->
-      <div style="background: var(--primary); color: white; padding: 20px; border-radius: 16px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+    <!-- SIDEBAR NAVIGATION DRAWER PANEL -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar-menu" id="sidebarMenu">
         <div>
-          <div style="font-weight: 700; font-size: 0.9rem;">Export History</div>
-          <div style="font-size: 0.75rem; opacity: 0.8;">Share logs with your doctor.</div>
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <i class="fa-solid fa-briefcase-medical"></i>
+                    <span>MediBot Global</span>
+                </div>
+                <button type="button" class="close-sidebar-btn" id="closeSidebar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <nav class="sidebar-nav-links">
+                <a href="{% url 'chat:chat' %}" class="sidebar-link">
+                    <i class="fa-solid fa-comment-dots"></i> Chat Assistant
+                </a>
+                <a href="{% url 'history:history' %}" class="sidebar-link active">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Medical History
+                </a>
+                <a href="{% url 'profiles:profile' %}" class="sidebar-link">
+                    <i class="fa-regular fa-user"></i> User Profile
+                </a>
+            </nav>
         </div>
-        <button id="exportBtn" style="background: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; color: var(--primary); cursor: pointer;">
-          Export PDF
-        </button>
-      </div>
-    </div>
 
-    <!-- Navigation -->
-    <div class="nav-bar">
-      <a href="{% url 'chat:chat' %}"class="nav-item"><i class="fa-regular fa-comment-dots"></i><span>Chat</span></a>
-
-        <a href="{% url 'history:history' %}" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i><span>History</span></a>
-        <a href="{% url 'profile_view:profile' %}" class="nav-item active"><i class="fa-solid fa-user"></i><span>Profile</span></a>
-    </div>
-  </div>
-
-  <script>
-    // Internal JavaScript
     
-    // Simple navigation handler
-    function navigate(page) {
-      console.log("Navigating to: " + page);
-      const items = document.querySelectorAll('.nav-item');
-      items.forEach(item => {
-        item.classList.remove('active');
-        if(item.innerText.includes(page)) item.classList.add('active');
-      });
-    }
+    </div>
 
-    // Export functionality
-    document.getElementById('exportBtn').addEventListener('click', function() {
-      console.log("Exporting PDF...");
-      alert("Generating your medical report for export...");
-    });
+    <!-- MAIN APP HEADER BAR -->
+    <header class="app-header">
+        <div class="header-left">
+            <button type="button" class="hamburger-btn" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
+            <div class="logo">
+                <i class="fa-solid fa-briefcase-medical"></i>
+                <span>MediBot</span>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button type="button" class="theme-toggle-btn" id="themeToggle" title="Toggle System Palette">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            <div class="mini-avatar-container">
+                <i class="fa-solid fa-user-medical" id="header-avatar-fallback"></i>
+                <img src="" id="header-avatar" alt="Corner Tracker Mini Avatar">
+            </div>
+        </div>
+    </header>
 
-    // Console greeting
-    console.log("MediBot History UI Loaded from Screenshot from 2026-06-01 12-48-57.png");
-  </script>
+    <!-- MAIN INTERACTIVE WRAPPER -->
+    <main class="main-content">
+        <section class="info-section">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Chat History</h3>
+            </div>
+            <p class="section-subtitle">Review your past first-aid consultations.</p>
+
+            <div class="history-list-container">
+                {% for chat in chats %}
+                <div class="log-item">
+                    <div class="log-wrapper">
+                        <div style="display: flex; align-items: center;">
+                            <div class="log-icon">
+                                <i class="fa-solid fa-notes-medical"></i>
+                            </div>
+                            <div class="log-details">
+                                <span class="log-title">{{ chat.question }}</span>
+                                <span class="log-meta">{{ chat.created_at }}</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right arrow-right"></i>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="padding: 32px; text-align: center; color: var(--text-muted);">
+                    <i class="fa-regular fa-folder-open" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                    <p>No chat history available yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- EXPORT BOARD ACTION -->
+        <div class="export-panel">
+            <div>
+                <div class="export-title">Export History</div>
+                <div class="export-text">Share verified clinical breakdown logs with your doctor.</div>
+            </div>
+            <button type="button" id="exportBtn" class="btn-export">
+                <i class="fa-regular fa-file-pdf"></i> Export PDF
+            </button>
+        </div>
+    </main>
+
+    <!-- BOTTOM SYSTEM NAV BAR -->
+    <nav class="bottom-nav">
+        <a href="{% url 'chat:chat' %}" class="nav-item">
+            <i class="fa-regular fa-comment-dots"></i>
+            <span>Chat</span>
+        </a>
+        <a href="{% url 'history:history' %}" class="nav-item active">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>History</span>
+        </a>
+        <a href="{% url 'profiles:profile' %}" class="nav-item">
+            <i class="fa-solid fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- RESPONSIVE SCRIPT ENGINE -->
+    <script>
+        // Drawer Menu Control DOM Elements
+        const openSidebarBtn = document.getElementById('openSidebar');
+        const closeSidebarBtn = document.getElementById('closeSidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const sidebarMenu = document.getElementById('sidebarMenu');
+
+        function toggleSidebar() {
+            sidebarMenu.classList.toggle('open');
+            sidebarOverlay.classList.toggle('open');
+        }
+
+        openSidebarBtn.addEventListener('click', toggleSidebar);
+        closeSidebarBtn.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        // Theme Switcher engine 
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = themeToggleBtn.querySelector('i');
+
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+            }
+        }
+
+        // Initialize display icon state on mount
+        updateThemeIcon(document.documentElement.getAttribute('data-theme'));
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        // Document Report generation trigger
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            alert("Generating your analytical medical report for export...");
+        });
+    </script>
 </body>
 </html>

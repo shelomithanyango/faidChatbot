@@ -50,7 +50,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("chat")
+            return redirect("chat:chat")
         else:
             messages.error(request, "Invalid username or password")
             return redirect("login")
@@ -60,4 +60,4 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect("login")
+    return redirect("homepage:home")

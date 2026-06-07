@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediBot - Profile Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ==================== CONFIGURATION VARIABLES ==================== */
+        :root {
+            --primary-blue: #006672;
+            --bg-body: #f4f7fc;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --accent-red: #faeae8;
+            --text-red: #d9381e;
+            --border-color: #e2e8f0;
+            --nav-active: #006672;
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --card-bg: #1e293b;
+            --text-dark: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --accent-red: #451a1a;
+            --text-red: #fca5a5;
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        html, body {
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==================== STRUCTURAL HEADER LAYOUT ==================== */
+        .app-header {
+            background: var(--card-bg);
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .app-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #0284c7;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .theme-toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .mini-avatar-container {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1.5px solid var(--primary-blue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(2, 132, 199, 0.1);
+            color: #0284c7;
+            overflow: hidden;
+        }
+
+        .mini-avatar-container i {
+            font-size: 16px;
+        }
+
+        .mini-avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        /* ==================== RESPONSIVE MAIN CONTENT GRID ==================== */
+        .main-content {
+            flex: 1;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 5% 100px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                grid-template-columns: 320px 1fr;
+            }
+        }
+
+        /* ==================== PROFILE MAIN CARD UI ==================== */
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 32px 24px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-card);
+            height: fit-content;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 16px;
+            cursor: pointer;
+            border-radius: 50%;
+            background: rgba(2, 132, 199, 0.1);
+            color: #0284c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid var(--card-bg);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .avatar-container i.default-avatar {
+            font-size: 52px;
+        }
+
+        #profile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+        }
+
+        .avatar-overlay-upload {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 3;
+        }
+
+        .avatar-container:hover .avatar-overlay-upload {
+            opacity: 1;
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            width: 18px;
+            height: 18px;
+            background-color: #22c55e;
+            border: 3px solid var(--card-bg);
+            border-radius: 50%;
+            z-index: 4;
+        }
+
+        .profile-card h2 {
+            color: var(--text-dark);
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .account-type {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .profile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        @media (min-width: 340px) {
+            .profile-actions { flex-direction: row; }
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-primary { background-color: var(--primary-blue); color: white; }
+        .btn-secondary { background-color: rgba(0, 82, 204, 0.1); color: var(--primary-blue); }
+
+        /* ==================== EDITABLE FORMS & CONTAINERS ==================== */
+        .info-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-card);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--primary-blue);
+            font-weight: bold;
+            padding-bottom: 8px;
+        }
+
+        .toggle-trigger { cursor: pointer; }
+
+        .section-header h3 {
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chevron {
+            color: var(--text-muted);
+            font-size: 14px;
+            transition: transform 0.2s ease;
+        }
+
+        .section-content { 
+            margin-top: 14px; 
+            overflow: hidden;
+        }
+
+        .info-section.closed .collapsible {
+            max-height: 0 !important;
+            margin-top: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .info-section.closed .chevron { transform: rotate(180deg); }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+            min-height: 55px;
+        }
+
+        .info-row:last-child { border-bottom: none; }
+        .label { color: var(--text-muted); font-size: 14px; }
+        .value { font-size: 15px; color: var(--text-dark); }
+
+        .edit-input {
+            display: none;
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            width: 160px;
+            text-align: right;
+        }
+
+        .blood-select {
+            display: none;
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .font-bold { font-weight: 600; }
+        .badge-blood {
+            background-color: var(--accent-red);
+            color: var(--text-red);
+            padding: 6px 14px;
+            border-radius: 12px;
+        }
+
+        /* Emergency Contacts Structural Area */
+        .contact-card, .log-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .contact-card:last-of-type, .log-item:last-of-type { border-bottom: none; }
+
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-grow: 1;
+        }
+
+        .contact-edit-box {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            width: 70%;
+        }
+
+        .contact-edit-box input {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            width: 100%;
+        }
+
+        .contact-name, .log-title {
+            color: var(--text-dark);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .contact-phone, .log-meta { color: var(--text-muted); font-size: 13px; }
+
+        .call-btn {
+            width: 38px;
+            height: 38px;
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        /* ==================== SCROLLABLE MEDICAL LOG RECORDS ==================== */
+        .scrollable-history-container {
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        
+        .scrollable-history-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scrollable-history-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scrollable-history-container::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 10px;
+        }
+
+        .log-item {
+            width: 100%;
+        }
+
+        .log-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .log-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .icon-bg-blue { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .arrow-right { color: var(--text-muted); font-size: 12px; }
+
+        .btn-outline-dashed {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1.5px dashed var(--border-color);
+            border-radius: 14px;
+            color: var(--primary-blue);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+
+        /* ==================== SIDENAV INTERFACE DRAWER ==================== */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .sidebar-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: var(--card-bg);
+            z-index: 999;
+            box-shadow: 4px 0 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 32px 24px;
+            transition: left 0.3s ease;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar-menu.open { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .sidebar-brand { display: flex; align-items: center; gap: 10px; color: #0284c7; font-weight: 700; font-size: 18px; }
+        .close-sidebar-btn { background: none; border: none; color: var(--text-dark); font-size: 20px; cursor: pointer; }
+        
+        .sidebar-nav-links { display: flex; flex-direction: column; gap: 10px; flex-grow: 1; }
+        .sidebar-link { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 12px; color: var(--text-muted); text-decoration: none; font-size: 15px; font-weight: 600; }
+        .sidebar-link:hover, .sidebar-link.active { background: rgba(2, 132, 199, 0.1); color: #0284c7; }
+        
+        .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; }
+        .logout-btn { display: flex; align-items: center; gap: 14px; width: 100%; background: none; border: none; padding: 14px 18px; color: #ef4444; font-size: 15px; font-weight: 600; cursor: pointer; border-radius: 12px; text-decoration: none; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); }
+
+        /* ==================== BOTTOM SYSTEM NAV BAR ==================== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 10px;
+            z-index: 40;
+        }
+
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 12px; font-weight: 500; }
+        .nav-item i { font-size: 22px; }
+        .nav-item.active { color: var(--nav-active); }
+    </style>
+
+</head>
+<body>
+
+    <!-- SIDEBAR NAVIGATION DRAWER PANEL -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar-menu" id="sidebarMenu">
+        <div>
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <i class="fa-solid fa-briefcase-medical"></i>
+                    <span>MediBot Global</span>
+                </div>
+                <button type="button" class="close-sidebar-btn" id="closeSidebar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <nav class="sidebar-nav-links">
+                <a href="{% url 'chat:chat' %}" class="sidebar-link">
+                    <i class="fa-solid fa-comment-dots"></i> Chat Assistant
+                </a>
+                <a href="{% url 'history:history' %}" class="sidebar-link">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Medical History
+                </a>
+                <a href="{% url 'profiles:profile' %}" class="sidebar-link active">
+                    <i class="fa-regular fa-user"></i> User Profile
+                </a>
+            </nav>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> 
+                <span>Logout Session</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN APP HEADER BAR -->
+    <header class="app-header">
+        <div class="header-left">
+            <button type="button" class="hamburger-btn" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
+            <div class="logo">
+                <i class="fa-solid fa-briefcase-medical"></i>
+                <span>MediBot</span>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button type="button" class="theme-toggle-btn" id="themeToggle" title="Toggle System Palette">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            <div class="mini-avatar-container">
+                <i class="fa-solid fa-user-medical" id="header-avatar-fallback"></i>
+                <img src="" id="header-avatar" alt="Corner Tracker Mini Avatar">
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENT DATA GRID DISPATCHER FORM -->
+    <form method="POST" action="" enctype="multipart/form-data" id="profileForm">
+        <input type="file" id="avatarFileInput" name="profile_photo" accept="image/*" style="display: none;">
+
+        <main class="main-content">
+            
+            <!-- LEFT PROFILE DISPATCH COLUMN -->
+            <div class="left-column">
+                <section class="profile-card">
+                    <div class="avatar-container" id="avatarUploadTrigger" title="Click to upload profile avatar">
+                        <i class="fa-solid fa-user-medical default-avatar" id="profile-avatar-fallback"></i>
+                        <img src="" id="profile-img" alt="Profile Display">
+                        <div class="avatar-overlay-upload">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                        <span class="status-dot"></span>
+                    </div>
+                    <h2>Jane Doe</h2>
+                    <p class="account-type">MediBot Verified User</p>
+                    
+                    <div class="profile-actions">
+                        <button type="button" class="btn btn-primary" id="editToggleBtn">
+                            <i class="fa-solid fa-pen"></i> <span>Edit Profile</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="shareHealthIdBtn">
+                            <i class="fa-solid fa-share-nodes"></i> <span>Share Health ID</span>
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- RIGHT DATA DETAILS PARAMETERS COLUMN -->
+            <div class="right-column">
+                <section class="info-section">
+                    <div class="section-header no-toggle">
+                        <h3><i class="fa-regular fa-user"></i> Basic Health Parameters</h3>
+                    </div>
+                    <div class="section-content">
+                        <div class="info-row">
+                            <span class="label">Age</span>
+                            <span class="value font-bold view-mode-text" id="ageLabel">24</span>
+                            <input type="number" class="edit-input" id="ageInput" name="age" value="24">
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Blood Type</span>
+                            <span class="value badge-blood font-bold view-mode-text" id="bloodLabel">A+</span>
+                            <select class="blood-select" id="bloodInput" name="blood_type">
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Allergies</span>
+                            <span class="value font-bold view-mode-text" id="allergiesLabel">Peanuts, Penicillin</span>
+                            <input type="text" class="edit-input" id="allergiesInput" name="allergies" value="Peanuts, Penicillin">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- EMERGENCY CONTACTS -->
+                <section class="info-section accordion">
+                    <div class="section-header toggle-trigger">
+                        <h3><i class="fa-solid fa-asterisk"></i> Emergency Contacts</h3>
+                        <i class="fa-solid fa-chevron-up chevron"></i>
+                    </div>
+                    <div class="section-content collapsible">
+                        <div id="contactsContainer">
+                            <div class="contact-card">
+                                <div class="contact-details view-mode-text">
+                                    <span class="contact-name values-name-txt">Alex Danvers (Brother)</span>
+                                    <span class="contact-phone values-phone-txt">+254 712 345 678</span>
+                                </div>
+                                <div class="contact-edit-box">
+                                    <input type="text" class="edit-contact-name" id="contactNameInput" value="Alex Danvers (Brother)">
+                                    <input type="text" class="edit-contact-phone" id="contactPhoneInput" value="+254 712 345 678">
+                                </div>
+                                <a href="tel:+254712345678" class="call-btn" id="contactCallLink">
+                                    <i class="fa-solid fa-phone"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- RECENT HISTORY LOGS -->
+                <section class="info-section accordion">
+                    <div class="section-header toggle-trigger">
+                        <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Chat History</h3>
+                        <i class="fa-solid fa-chevron-up chevron"></i>
+                    </div>
+                    <div class="section-content collapsible">
+                        <div class="scrollable-history-container">
+                            <div class="log-item">
+                                <div class="log-wrapper">
+                                    <div style="display: flex; align-items: center;">
+                                        <div class="log-icon icon-bg-blue"><i class="fa-solid fa-notes-medical"></i></div>
+                                        <div class="log-details">
+                                            <span class="log-title">Thermal Burn Assessment</span>
+                                            <span class="log-meta">Jun 05, 2026 &bull; 5:24 PM</span>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right arrow-right"></i>
+                                </div>
+                            </div>
+                            <div class="log-item" style="margin-top: 14px;">
+                                <div class="log-wrapper">
+                                    <div style="display: flex; align-items: center;">
+                                        <div class="log-icon icon-bg-blue"><i class="fa-solid fa-notes-medical"></i></div>
+                                        <div class="log-details">
+                                            <span class="log-title">Choking First Aid Steps</span>
+                                            <span class="log-meta">May 28, 2026 &bull; 11:10 AM</span>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-outline-dashed">View Full Medical Log</button>
+                    </div>
+                </section>
+            </div>
+
+        </main>
+    </form>
+
+    <!-- BOTTOM TAB INTERFACES -->
+    <nav class="bottom-nav">
+        <a href="{% url 'chat:chat' %}" class="nav-item"><i class="fa-regular fa-comment-dots"></i><span>Chat</span></a>
+        <a href="{% url 'history:history' %}" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i><span>History</span></a>
+        <a href="#" class="nav-item active"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+    </nav>
+
+    <!-- ==================== RUNTIME DATA HANDLERS ==================== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. ACCORDION STRUCTURAL ACTIONS ---
+            const accordions = document.querySelectorAll('.info-section.accordion');
+            accordions.forEach(accordion => {
+                const trigger = accordion.querySelector('.toggle-trigger');
+                const content = accordion.querySelector('.collapsible');
+                content.style.maxHeight = content.scrollHeight + "px";
+
+                trigger.addEventListener('click', () => {
+                    const isClosed = accordion.classList.toggle('closed');
+                    content.style.maxHeight = isClosed ? "0px" : content.scrollHeight + "px";
+                });
+            });
+
+            // --- 2. DRAWER SIDEBAR NAVIGATION ---
+            const openSidebarBtn = document.getElementById('openSidebar');
+            const closeSidebarBtn = document.getElementById('closeSidebar');
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar(open) {
+                sidebarMenu.classList.toggle('open', open);
+                sidebarOverlay.classList.toggle('open', open);
+            }
+            openSidebarBtn.addEventListener('click', () => toggleSidebar(true));
+            closeSidebarBtn.addEventListener('click', () => toggleSidebar(false));
+            sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
+
+            // --- 3. PROFILE EDITOR ENGINE WITH DYNAMIC LINK UPDATER ---
+            const editToggleBtn = document.getElementById('editToggleBtn');
+            const viewModeTexts = document.querySelectorAll('.view-mode-text');
+            const editInputs = document.querySelectorAll('.edit-input');
+            const bloodSelect = document.getElementById('bloodInput');
+            const bloodLabel = document.getElementById('bloodLabel');
+            const contactEditBoxes = document.querySelectorAll('.contact-edit-box');
+            let isEditMode = false;
+
+            editToggleBtn.addEventListener('click', () => {
+                isEditMode = !isEditMode;
+                if (isEditMode) {
+                    viewModeTexts.forEach(el => el.style.display = 'none');
+                    editInputs.forEach(el => el.style.display = 'block');
+                    contactEditBoxes.forEach(el => el.style.display = 'flex');
+                    bloodSelect.style.display = 'block';
+                    
+                    editToggleBtn.classList.replace('btn-primary', 'btn-secondary');
+                    editToggleBtn.querySelector('span').innerText = "Save Changes";
+                    editToggleBtn.querySelector('i').className = "fa-solid fa-floppy-disk";
+                } else {
+                    // Update layout display data
+                    document.getElementById('ageLabel').innerText = document.getElementById('ageInput').value;
+                    document.getElementById('allergiesLabel').innerText = document.getElementById('allergiesInput').value;
+                    bloodLabel.innerText = bloodSelect.value;
+
+                    // Update emergency contact and set dialer target strings dynamically
+                    const nameVal = document.getElementById('contactNameInput').value;
+                    const phoneVal = document.getElementById('contactPhoneInput').value;
+                    
+                    document.querySelector('.values-name-txt').innerText = nameVal;
+                    document.querySelector('.values-phone-txt').innerText = phoneVal;
+                    
+                    // Clean symbols up out of phone inputs to make tel rules precise
+                    const cleanPhone = phoneVal.replace(/\s+/g, '');
+                    document.getElementById('contactCallLink').setAttribute('href', 'tel:' + cleanPhone);
+
+                    viewModeTexts.forEach(el => el.style.display = 'block');
+                    editInputs.forEach(el => el.style.display = 'none');
+                    contactEditBoxes.forEach(el => el.style.display = 'none');
+                    bloodSelect.style.display = 'none';
+
+                    editToggleBtn.classList.replace('btn-secondary', 'btn-primary');
+                    editToggleBtn.querySelector('span').innerText = "Edit Profile";
+                    editToggleBtn.querySelector('i').className = "fa-solid fa-pen";
+                }
+            });
+
+            // --- 4. IMAGE UPLOAD ENGINE ---
+            const avatarUploadTrigger = document.getElementById('avatarUploadTrigger');
+            const avatarFileInput = document.getElementById('avatarFileInput');
+            const profileImg = document.getElementById('profile-img');
+            const profileFallback = document.getElementById('profile-avatar-fallback');
+            const headerAvatar = document.getElementById('header-avatar');
+            const headerFallback = document.getElementById('header-avatar-fallback');
+
+            avatarUploadTrigger.addEventListener('click', () => avatarFileInput.click());
+
+            avatarFileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        profileImg.src = e.target.result;
+                        profileImg.style.display = 'block';
+                        profileFallback.style.display = 'none';
+
+                        headerAvatar.src = e.target.result;
+                        headerAvatar.style.display = 'block';
+                        headerFallback.style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // --- 5. RESPONSIVE SHARE HANDLER ---
+            const shareBtn = document.getElementById('shareHealthIdBtn');
+            shareBtn.addEventListener('click', () => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Emergency Medical Data Summary',
+                        text: `Blood Type: ${bloodLabel.innerText}`,
+                        url: window.location.href
+                    }).catch(console.error);
+                } else {
+                    alert("Profile summary details successfully copied onto clipboard buffer!");
+                }
+            });
+
+            // --- 6. PALETTE THEME LIGHT / DARK TOGGLER ---
+            const themeToggleBtn = document.getElementById('themeToggle');
+            const rootElement = document.documentElement;
+
+            function updateThemeIcon(theme) {
+                themeToggleBtn.querySelector('i').className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+            updateThemeIcon(localStorage.getItem('theme') || 'light');
+
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = rootElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                rootElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+        });
+    </script>
+</body>
+</html>
