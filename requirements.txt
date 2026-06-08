@@ -46,6 +46,7 @@ pyphen==0.17.2
 python-decouple==3.8
 python-dotenv==1.2.2
 PyYAML==6.0.3
+reportlab==4.5.1
 requests==2.34.2
 responses==0.26.1
 schema==0.7.8
@@ -60,7 +61,6 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 uritemplate==4.2.0
 urllib3==2.7.0
-reportlab==4.2.0
 webencodings==0.5.1
 websockets==16.0
 whitenoise==6.12.0
