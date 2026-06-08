@@ -81,10 +81,18 @@ TEMPLATES = [
 WSGI_APPLICATION = 'faidChatbot.wsgi.application'
 
 # Database Setup Configuration
-# Connects to your PostgreSQL URL, or falls back to your local SQLite file for local coding
+# Fixes Vercel's build-stage pre-compilation backend loading exception
 DATABASE_URL = os.environ.get('DATABASE_URL') or config('DATABASE_URL', default=None)
 
-if DATABASE_URL:
+# Check if Vercel is currently running the static compiler block
+if 'request' not in os.environ and os.environ.get('VERCEL_ENV') == 'production' and not DATABASE_URL:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.models.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+elif DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(
             DATABASE_URL,
@@ -99,6 +107,7 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
