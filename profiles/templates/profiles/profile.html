@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ==================== CONFIGURATION VARIABLES ==================== */
+      
         :root {
             --primary-blue: #006672;
             --bg-body: #f4f7fc;
@@ -53,7 +53,7 @@
             flex-direction: column;
         }
 
-        /* ==================== STRUCTURAL HEADER LAYOUT ==================== */
+        
         .app-header {
             background: var(--card-bg);
             padding: 16px 5%;
@@ -129,7 +129,7 @@
             display: none;
         }
 
-        /* ==================== RESPONSIVE MAIN CONTENT GRID ==================== */
+        
         .main-content {
             flex: 1;
             width: 100%;
@@ -147,7 +147,7 @@
             }
         }
 
-        /* ==================== PROFILE MAIN CARD UI ==================== */
+      
         .profile-card {
             background: var(--card-bg);
             border-radius: 24px;
@@ -263,7 +263,7 @@
         .btn-primary { background-color: var(--primary-blue); color: white; }
         .btn-secondary { background-color: rgba(0, 82, 204, 0.1); color: var(--primary-blue); }
 
-        /* ==================== EDITABLE FORMS & CONTAINERS ==================== */
+       
         .info-section {
             background: var(--card-bg);
             border-radius: 20px;
@@ -413,7 +413,7 @@
             text-decoration: none;
         }
 
-        /* ==================== SCROLLABLE MEDICAL LOG RECORDS ==================== */
+        
         .scrollable-history-container {
             max-height: 280px;
             overflow-y: auto;
@@ -469,7 +469,7 @@
             margin-top: 16px;
         }
 
-        /* ==================== SIDENAV INTERFACE DRAWER ==================== */
+        
         .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -516,7 +516,7 @@
         .logout-btn { display: flex; align-items: center; gap: 14px; width: 100%; background: none; border: none; padding: 14px 18px; color: #ef4444; font-size: 15px; font-weight: 600; cursor: pointer; border-radius: 12px; text-decoration: none; }
         .logout-btn:hover { background: rgba(239, 68, 68, 0.1); }
 
-        /* ==================== BOTTOM SYSTEM NAV BAR ==================== */
+       
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -540,7 +540,6 @@
 </head>
 <body>
 
-    <!-- SIDEBAR NAVIGATION DRAWER PANEL -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="sidebar-menu" id="sidebarMenu">
         <div>
@@ -564,7 +563,6 @@
                 </a>
             </nav>
         </div>
-
         <div class="sidebar-footer">
             <a href="/logout" class="logout-btn">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i> 
@@ -572,60 +570,65 @@
             </a>
         </div>
     </div>
-
-    <!-- MAIN APP HEADER BAR -->
     <header class="app-header">
-        <div class="header-left">
-            <button type="button" class="hamburger-btn" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
-            <div class="logo">
-                <i class="fa-solid fa-briefcase-medical"></i>
-                <span>MediBot</span>
-            </div>
+    <div class="header-left">
+        <button type="button" class="hamburger-btn" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
+        <div class="logo">
+            <i class="fa-solid fa-briefcase-medical"></i>
+            <span>MediBot</span>
         </div>
+    </div>
+    <div class="header-right">
+        <div class="mini-avatar-container">
+           <!-- If a profile photo exists, render it with inline overrides to bypass the stylesheet hide rules -->
+           {% if profile.profile_pic %}
+               <img src="{{ profile.profile_pic.url }}" id="header-avatar" style="display: block; width: 100%; height: 100%; object-fit: cover;">
+               <i class="fa-solid fa-user-medical" id="header-avatar-fallback" style="display: none;"></i>
+           {% else %}
+               <img src="" id="header-avatar" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+               <i class="fa-solid fa-user-medical" id="header-avatar-fallback" style="display: inline-block; font-size: 16px; color: var(--primary-blue);"></i>
+           {% endif %}
+        </div>
+    </div>
+</header>
+
+
+    <form method="POST" action="{% url 'profiles:update_profile' %}" enctype="multipart/form-data" id="profileForm">
+        {% csrf_token %}
         
-        <div class="header-right">
-            <button type="button" class="theme-toggle-btn" id="themeToggle" title="Toggle System Palette">
-                <i class="fa-solid fa-moon"></i>
-            </button>
-            <div class="mini-avatar-container">
-                <i class="fa-solid fa-user-medical" id="header-avatar-fallback"></i>
-                <img src="" id="header-avatar" alt="Corner Tracker Mini Avatar">
-            </div>
-        </div>
-    </header>
+        <input type="file" id="avatarFileInput" name="profile_pic" style="display: none;" accept="image/*">
 
-    <!-- CONTENT DATA GRID DISPATCHER FORM -->
-    <form method="POST" action="" enctype="multipart/form-data" id="profileForm">
-        <input type="file" id="avatarFileInput" name="profile_photo" accept="image/*" style="display: none;">
-
-        <main class="main-content">
+        <main class="main-content main-content-grid" style="display: grid; grid-template-columns: 1fr; gap: 24px;">
             
-            <!-- LEFT PROFILE DISPATCH COLUMN -->
             <div class="left-column">
                 <section class="profile-card">
                     <div class="avatar-container" id="avatarUploadTrigger" title="Click to upload profile avatar">
-                        <i class="fa-solid fa-user-medical default-avatar" id="profile-avatar-fallback"></i>
-                        <img src="" id="profile-img" alt="Profile Display">
+                        {% if profile.profile_pic %}
+                            <i class="fa-solid fa-user-medical default-avatar" id="profile-avatar-fallback" style="display:none;"></i>
+                            <img src="{{ profile.profile_pic.url }}" id="profile-img" style="display:block; width:100%; height:100%; object-fit:cover;">
+                        {% else %}
+                            <i class="fa-solid fa-user-medical default-avatar" id="profile-avatar-fallback" style="display:block;"></i>
+                            <img src="" id="profile-img" style="display:none; width:100%; height:100%; object-fit:cover;">
+                        {% endif %}
                         <div class="avatar-overlay-upload">
                             <i class="fa-solid fa-camera"></i>
                         </div>
                         <span class="status-dot"></span>
                     </div>
-                    <h2>Jane Doe</h2>
+                    <h2>{{ user.first_name|default:user.username }} {{ user.last_name|default:"" }}</h2>
                     <p class="account-type">MediBot Verified User</p>
                     
                     <div class="profile-actions">
                         <button type="button" class="btn btn-primary" id="editToggleBtn">
-                            <i class="fa-solid fa-pen"></i> <span>Edit Profile</span>
+                            <i class="fa-solid fa-floppy-disk"></i> <span>Save Profile</span>
                         </button>
-                        <button type="button" class="btn btn-secondary" id="shareHealthIdBtn">
-                            <i class="fa-solid fa-share-nodes"></i> <span>Share Health ID</span>
+                        <button type="button" class="btn btn-secondary" id="editTriggerBtn">
+                            <i class="fa-solid fa-pen"></i> <span>Edit Profile</span>
                         </button>
                     </div>
                 </section>
             </div>
 
-            <!-- RIGHT DATA DETAILS PARAMETERS COLUMN -->
             <div class="right-column">
                 <section class="info-section">
                     <div class="section-header no-toggle">
@@ -634,32 +637,32 @@
                     <div class="section-content">
                         <div class="info-row">
                             <span class="label">Age</span>
-                            <span class="value font-bold view-mode-text" id="ageLabel">24</span>
-                            <input type="number" class="edit-input" id="ageInput" name="age" value="24">
+                            <span class="value font-bold view-mode-text" id="ageLabel">{{ profile.age|default:"--" }}</span>
+                            <input type="number" class="edit-input" id="ageInput" name="age" value="{{ profile.age|default:'' }}" style="display: none;">
                         </div>
                         <div class="info-row">
                             <span class="label">Blood Type</span>
-                            <span class="value badge-blood font-bold view-mode-text" id="bloodLabel">A+</span>
-                            <select class="blood-select" id="bloodInput" name="blood_type">
-                                <option value="A+">A+</option>
-                                <option value="A-">A-</option>
-                                <option value="B+">B+</option>
-                                <option value="B-">B-</option>
-                                <option value="AB+">AB+</option>
-                                <option value="AB-">AB-</option>
-                                <option value="O+">O+</option>
-                                <option value="O-">O-</option>
+                            <span class="value badge-blood font-bold view-mode-text" id="bloodLabel">{{ profile.blood_type|default:"Not Set" }}</span>
+                            <select class="blood-select" id="bloodInput" name="blood_type" style="display: none;">
+                                <option value="" {% if not profile.blood_type %}selected{% endif %}>Select...</option>
+                                <option value="A+" {% if profile.blood_type == "A+" %}selected{% endif %}>A+</option>
+                                <option value="A-" {% if profile.blood_type == "A-" %}selected{% endif %}>A-</option>
+                                <option value="B+" {% if profile.blood_type == "B+" %}selected{% endif %}>B+</option>
+                                <option value="B-" {% if profile.blood_type == "B-" %}selected{% endif %}>B-</option>
+                                <option value="AB+" {% if profile.blood_type == "AB+" %}selected{% endif %}>AB+</option>
+                                <option value="AB-" {% if profile.blood_type == "AB-" %}selected{% endif %}>AB-</option>
+                                <option value="O+" {% if profile.blood_type == "O+" %}selected{% endif %}>O+</option>
+                                <option value="O-" {% if profile.blood_type == "O-" %}selected{% endif %}>O-</option>
                             </select>
                         </div>
                         <div class="info-row">
                             <span class="label">Allergies</span>
-                            <span class="value font-bold view-mode-text" id="allergiesLabel">Peanuts, Penicillin</span>
-                            <input type="text" class="edit-input" id="allergiesInput" name="allergies" value="Peanuts, Penicillin">
+                            <span class="value font-bold view-mode-text" id="allergiesLabel">{{ profile.allergies|default:"None" }}</span>
+                            <input type="text" class="edit-input" id="allergiesInput" name="allergies" value="{{ profile.allergies|default:'' }}" style="display: none;">
                         </div>
                     </div>
                 </section>
 
-                <!-- EMERGENCY CONTACTS -->
                 <section class="info-section accordion">
                     <div class="section-header toggle-trigger">
                         <h3><i class="fa-solid fa-asterisk"></i> Emergency Contacts</h3>
@@ -667,24 +670,29 @@
                     </div>
                     <div class="section-content collapsible">
                         <div id="contactsContainer">
+                            {% for contact in contacts %}
                             <div class="contact-card">
                                 <div class="contact-details view-mode-text">
-                                    <span class="contact-name values-name-txt">Alex Danvers (Brother)</span>
-                                    <span class="contact-phone values-phone-txt">+254 712 345 678</span>
+                                    <span class="contact-name values-name-txt">{{ contact.name }} ({% if contact.relationship %}{{ contact.relationship }}{% else %}Contact{% endif %})</span>
+                                    <span class="contact-phone values-phone-txt">{{ contact.phone }}</span>
                                 </div>
-                                <div class="contact-edit-box">
-                                    <input type="text" class="edit-contact-name" id="contactNameInput" value="Alex Danvers (Brother)">
-                                    <input type="text" class="edit-contact-phone" id="contactPhoneInput" value="+254 712 345 678">
+                                <div class="contact-edit-box" style="display: none; flex-direction: column; gap: 4px; width: 100%;">
+                                    <input type="hidden" name="contact_id[]" value="{{ contact.id }}">
+                                    <input type="text" class="edit-contact-name" name="contact_name[]" value="{{ contact.name }}">
+                                    <input type="text" class="edit-contact-relationship" name="contact_relationship[]" value="{{ contact.relationship }}" placeholder="Relationship">
+                                    <input type="text" class="edit-contact-phone" name="contact_phone[]" value="{{ contact.phone }}">
                                 </div>
-                                <a href="tel:+254712345678" class="call-btn" id="contactCallLink">
+                                <a href="tel:{{ contact.phone }}" class="call-btn">
                                     <i class="fa-solid fa-phone"></i>
                                 </a>
                             </div>
+                            {% empty %}
+                            <p class="view-mode-text" style="padding: 10px; color: var(--text-muted);">No emergency contacts added yet.</p>
+                            {% endfor %}
                         </div>
                     </div>
                 </section>
 
-                <!-- RECENT HISTORY LOGS -->
                 <section class="info-section accordion">
                     <div class="section-header toggle-trigger">
                         <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Chat History</h3>
@@ -725,14 +733,12 @@
         </main>
     </form>
 
-    <!-- BOTTOM TAB INTERFACES -->
     <nav class="bottom-nav">
         <a href="{% url 'chat:chat' %}" class="nav-item"><i class="fa-regular fa-comment-dots"></i><span>Chat</span></a>
         <a href="{% url 'history:history' %}" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i><span>History</span></a>
         <a href="#" class="nav-item active"><i class="fa-solid fa-user"></i><span>Profile</span></a>
     </nav>
 
-    <!-- ==================== RUNTIME DATA HANDLERS ==================== -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
@@ -741,12 +747,13 @@
             accordions.forEach(accordion => {
                 const trigger = accordion.querySelector('.toggle-trigger');
                 const content = accordion.querySelector('.collapsible');
-                content.style.maxHeight = content.scrollHeight + "px";
-
-                trigger.addEventListener('click', () => {
-                    const isClosed = accordion.classList.toggle('closed');
-                    content.style.maxHeight = isClosed ? "0px" : content.scrollHeight + "px";
-                });
+                if (content) {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    trigger.addEventListener('click', () => {
+                        const isClosed = accordion.classList.toggle('closed');
+                        content.style.maxHeight = isClosed ? "0px" : content.scrollHeight + "px";
+                    });
+                }
             });
 
             // --- 2. DRAWER SIDEBAR NAVIGATION ---
@@ -763,53 +770,31 @@
             closeSidebarBtn.addEventListener('click', () => toggleSidebar(false));
             sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
 
-            // --- 3. PROFILE EDITOR ENGINE WITH DYNAMIC LINK UPDATER ---
+            // --- 3. PROFILE EDITOR ENGINE WITH FORM SUBMISSION ---
             const editToggleBtn = document.getElementById('editToggleBtn');
+            const editTriggerBtn = document.getElementById('editTriggerBtn');
             const viewModeTexts = document.querySelectorAll('.view-mode-text');
             const editInputs = document.querySelectorAll('.edit-input');
             const bloodSelect = document.getElementById('bloodInput');
-            const bloodLabel = document.getElementById('bloodLabel');
             const contactEditBoxes = document.querySelectorAll('.contact-edit-box');
-            let isEditMode = false;
+            const profileForm = document.getElementById('profileForm');
 
-            editToggleBtn.addEventListener('click', () => {
-                isEditMode = !isEditMode;
-                if (isEditMode) {
+            // Opens input fields interface manually
+            if (editTriggerBtn) {
+                editTriggerBtn.addEventListener('click', () => {
                     viewModeTexts.forEach(el => el.style.display = 'none');
                     editInputs.forEach(el => el.style.display = 'block');
                     contactEditBoxes.forEach(el => el.style.display = 'flex');
-                    bloodSelect.style.display = 'block';
-                    
-                    editToggleBtn.classList.replace('btn-primary', 'btn-secondary');
-                    editToggleBtn.querySelector('span').innerText = "Save Changes";
-                    editToggleBtn.querySelector('i').className = "fa-solid fa-floppy-disk";
-                } else {
-                    // Update layout display data
-                    document.getElementById('ageLabel').innerText = document.getElementById('ageInput').value;
-                    document.getElementById('allergiesLabel').innerText = document.getElementById('allergiesInput').value;
-                    bloodLabel.innerText = bloodSelect.value;
+                    if (bloodSelect) bloodSelect.style.display = 'block';
+                });
+            }
 
-                    // Update emergency contact and set dialer target strings dynamically
-                    const nameVal = document.getElementById('contactNameInput').value;
-                    const phoneVal = document.getElementById('contactPhoneInput').value;
-                    
-                    document.querySelector('.values-name-txt').innerText = nameVal;
-                    document.querySelector('.values-phone-txt').innerText = phoneVal;
-                    
-                    // Clean symbols up out of phone inputs to make tel rules precise
-                    const cleanPhone = phoneVal.replace(/\s+/g, '');
-                    document.getElementById('contactCallLink').setAttribute('href', 'tel:' + cleanPhone);
-
-                    viewModeTexts.forEach(el => el.style.display = 'block');
-                    editInputs.forEach(el => el.style.display = 'none');
-                    contactEditBoxes.forEach(el => el.style.display = 'none');
-                    bloodSelect.style.display = 'none';
-
-                    editToggleBtn.classList.replace('btn-secondary', 'btn-primary');
-                    editToggleBtn.querySelector('span').innerText = "Edit Profile";
-                    editToggleBtn.querySelector('i').className = "fa-solid fa-pen";
-                }
-            });
+            // Handles standard post save pipeline dispatch to Django view backend
+            if (editToggleBtn) {
+                editToggleBtn.addEventListener('click', () => {
+                    profileForm.submit();
+                });
+            }
 
             // --- 4. IMAGE UPLOAD ENGINE ---
             const avatarUploadTrigger = document.getElementById('avatarUploadTrigger');
@@ -819,57 +804,30 @@
             const headerAvatar = document.getElementById('header-avatar');
             const headerFallback = document.getElementById('header-avatar-fallback');
 
-            avatarUploadTrigger.addEventListener('click', () => avatarFileInput.click());
+            if (avatarUploadTrigger && avatarFileInput) {
+                avatarUploadTrigger.addEventListener('click', () => avatarFileInput.click());
 
-            avatarFileInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        profileImg.src = e.target.result;
-                        profileImg.style.display = 'block';
-                        profileFallback.style.display = 'none';
+                avatarFileInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            if (profileImg) {
+                                profileImg.src = e.target.result;
+                                profileImg.style.display = 'block';
+                            }
+                            if (profileFallback) profileFallback.style.display = 'none';
 
-                        headerAvatar.src = e.target.result;
-                        headerAvatar.style.display = 'block';
-                        headerFallback.style.display = 'none';
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // --- 5. RESPONSIVE SHARE HANDLER ---
-            const shareBtn = document.getElementById('shareHealthIdBtn');
-            shareBtn.addEventListener('click', () => {
-                if (navigator.share) {
-                    navigator.share({
-                        title: 'Emergency Medical Data Summary',
-                        text: `Blood Type: ${bloodLabel.innerText}`,
-                        url: window.location.href
-                    }).catch(console.error);
-                } else {
-                    alert("Profile summary details successfully copied onto clipboard buffer!");
-                }
-            });
-
-            // --- 6. PALETTE THEME LIGHT / DARK TOGGLER ---
-            const themeToggleBtn = document.getElementById('themeToggle');
-            const rootElement = document.documentElement;
-
-            function updateThemeIcon(theme) {
-                themeToggleBtn.querySelector('i').className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+                            if (headerAvatar) {
+                                headerAvatar.src = e.target.result;
+                                headerAvatar.style.display = 'block';
+                            }
+                            if (headerFallback) headerFallback.style.display = 'none';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
             }
-            updateThemeIcon(localStorage.getItem('theme') || 'light');
-
-            themeToggleBtn.addEventListener('click', () => {
-                const currentTheme = rootElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                
-                rootElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-                updateThemeIcon(newTheme);
-            });
         });
     </script>
 </body>
-</html>

@@ -13,7 +13,8 @@ FIRST_AID_INSTRUCTIONS = {
     "fainting": "1. Lay the person on their back.\n2. Elevate legs above heart level.\n3. Loosen tight clothing.\n4. Keep them cool and comfortable.\n5. If unconscious for more than a minute, call emergency services.",
     "sprains": "1. Rest the injured limb.\n2. Apply ice for 15–20 minutes every 2-3 hours.\n3. Compress with an elastic bandage.\n4. Elevate above heart level.\n5. Seek medical attention if severe.",
     "nosebleed": "1. Sit upright and lean slightly forward.\n2. Pinch the soft part of the nose for 10 minutes.\n3. Apply a cold compress to the nose.\n4. Seek medical help if bleeding persists.",
-    "cuts": "1. Clean the wound with water.\n2. Apply antiseptic.\n3. Cover with a sterile bandage.\n4. Watch for signs of infection."
+    "cuts": "1. Clean the wound with water.\n2. Apply antiseptic.\n3. Cover with a sterile bandage.\n4. Watch for signs of infection.",
+    "suffocation": "1. Call emergency services immediately.\n2. If trained, perform rescue breathing.\n3. If the person is unconscious, place them in the recovery position.\n4. Continue until help arrives.",
 }
 
 def get_chatbot_response(user_message):

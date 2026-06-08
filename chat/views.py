@@ -2,13 +2,18 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .services import get_chatbot_response
 from history.models import ChatHistory
+# 1. IMPORT YOUR PROFILE MODEL FROM YOUR PROFILES APP
+from profiles.models import Profile 
 
 
 @login_required
 def chat(request):
     user_name = request.user.first_name or request.user.username
+    
+    
+    profile, created = Profile.objects.get_or_create(user=request.user)
 
-    # Default welcome message
+   
     reply = f"Hello {user_name}, how can I assist you today?"
     user_message = None
 
@@ -38,5 +43,6 @@ def chat(request):
             "reply": reply,
             "user_message": user_message,
             "user_name": user_name,
+            "profile": profile,  
         }
     )

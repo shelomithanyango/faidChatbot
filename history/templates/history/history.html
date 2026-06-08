@@ -376,26 +376,28 @@
     
     </div>
 
-    <!-- MAIN APP HEADER BAR -->
-    <header class="app-header">
-        <div class="header-left">
-            <button type="button" class="hamburger-btn" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
-            <div class="logo">
-                <i class="fa-solid fa-briefcase-medical"></i>
-                <span>MediBot</span>
-            </div>
+<header class="app-header">
+    <div class="header-left">
+        <button type="button" class="hamburger-btn" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
+        <div class="logo">
+            <i class="fa-solid fa-briefcase-medical"></i>
+            <span>MediBot</span>
         </div>
-        
-        <div class="header-right">
-            <button type="button" class="theme-toggle-btn" id="themeToggle" title="Toggle System Palette">
-                <i class="fa-solid fa-moon"></i>
-            </button>
-            <div class="mini-avatar-container">
-                <i class="fa-solid fa-user-medical" id="header-avatar-fallback"></i>
-                <img src="" id="header-avatar" alt="Corner Tracker Mini Avatar">
-            </div>
+    </div>
+    
+    <div class="header-right">
+       
+        <div class="mini-avatar-container" style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; display: flex; justify-content: center; align-items: center; background: rgba(0, 102, 114, 0.1);">
+            <!-- Checks for the shared profile variable -->
+            {% if profile.profile_pic %}
+                <img src="{{ profile.profile_pic.url }}" id="header-avatar" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            {% else %}
+                <i class="fa-solid fa-user-medical" id="header-avatar-fallback" style="font-size: 16px; color: #006672;"></i>
+            {% endif %}
         </div>
-    </header>
+    </div>
+</header>
+
 
     <!-- MAIN INTERACTIVE WRAPPER -->
     <main class="main-content">
