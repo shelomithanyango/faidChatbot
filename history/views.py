@@ -1,10 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from .models import ChatHistory
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from weasyprint import HTML
-# 1. IMPORT YOUR PROFILE MODEL FROM YOUR PROFILES APP
+from xhtml2pdf import pisa
+from .models import ChatHistory
 from profiles.models import Profile
 
 @login_required
@@ -12,7 +11,7 @@ def history_view(request):
     # Fetch or create the logged-in user's profile record
     profile, created = Profile.objects.get_or_create(user=request.user)
     
-    # FORCE DJANGO TO RE-READ THE LIVE DB ROW (Fixes cached image updates)
+    # Force Django to re-read the live database row
     profile.refresh_from_db()
 
     chats = ChatHistory.objects.filter(
@@ -28,8 +27,7 @@ def history_view(request):
         }
     )
 
-
-@login_required # Added login required decorator for safety
+@login_required 
 def export_chat_pdf(request):
     chats = ChatHistory.objects.filter(user=request.user)
 
@@ -37,8 +35,13 @@ def export_chat_pdf(request):
         "chats": chats
     })
 
-    pdf = HTML(string=html_string).write_pdf()
-
-    response = HttpResponse(pdf, content_type='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="chat.pdf"'
+    
+    # Generate the PDF file directly into the response stream
+    pisa_status = pisa.CreatePDF(html_string, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('We encountered some errors rendering your PDF.')
+        
     return response
