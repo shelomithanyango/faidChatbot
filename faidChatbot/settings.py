@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -84,12 +85,15 @@ WSGI_APPLICATION = 'faidChatbot.wsgi.application'
 # Fixes Vercel's build-stage pre-compilation backend loading exception
 DATABASE_URL = os.environ.get('DATABASE_URL') or config('DATABASE_URL', default=None)
 
-# Check if Vercel is currently running the static compiler block
-if 'request' not in os.environ and os.environ.get('VERCEL_ENV') == 'production' and not DATABASE_URL:
+# True if currently building or running inside Vercel's platform
+IS_VERCEL = os.environ.get('VERCEL') == '1'
+
+if IS_VERCEL and not DATABASE_URL:
+    # Safe fallback using the CORRECT sqlite3 engine path for the build step
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.models.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',  # Faster and cleaner for serverless builds
         }
     }
 elif DATABASE_URL:
@@ -101,9 +105,10 @@ elif DATABASE_URL:
         )
     }
 else:
+    # Local development default configuration
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.models.sqlite3',
+            'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
