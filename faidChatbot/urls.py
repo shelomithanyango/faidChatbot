@@ -18,9 +18,24 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static 
+from django.http import HttpResponse
+from django.core.management import call_command
+import os
+
+
+def run_prod_migrations(request):
+    # Only allow this to run on Vercel to protect your database
+    if os.environ.get('VERCEL') == '1':
+        try:
+            call_command('migrate', interactive=False)
+            return HttpResponse("Database Migrations Successfully Completed!")
+        except Exception as e:
+            return HttpResponse(f"Migration Failed: {e}", status=500)
+    return HttpResponse("Not Allowed", status=403)
 
 urlpatterns = [
     path('',include('homepage.urls')),
+    path('run-secret-migrations/', run_prod_migrations),
     path('accounts/', include('allauth.urls')),
     path('admin/', admin.site.urls),
     path("chat/", include("chat.urls")),
