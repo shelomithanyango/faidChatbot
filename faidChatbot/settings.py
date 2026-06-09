@@ -176,24 +176,22 @@ ACCOUNT_LOGOUT_ON_GET = True
 # ==============================================================================
 # VERCEL SERVERLESS AUTO-INITIALIZATION HANDLERS
 # ==============================================================================
-# Forces database synchronization and sets up the allauth framework entry point
-if IS_VERCEL and DATABASE_URL and 'collectstatic' not in sys.argv:
-    # 1. Run migrations automatically when the runtime application containers invoke
-    try:
-        from django.core.management import call_command
-        call_command('migrate', interactive=False)
-    except Exception as e:
-        print(f"Serverless migration engine encountered an exception: {e}")
+# Safely handles database sync only during an active web request block
+if IS_VERCEL and DATABASE_URL:
+    # Only run if explicitly handling a real web process, preventing inspection tool noise
+    if any(cmd in sys.argv for cmd in ['runserver', 'wsgi', 'asgi']) or 'vercel_wsgi' in sys.modules:
+        try:
+            from django.core.management import call_command
+            call_command('migrate', interactive=False)
+        except Exception:
+            pass  # Suppressed prints to keep Vercel JSON compilation clean
 
-    # 2. Prevent django-allauth crashes by ensuring Site ID 1 matches the live environment
-    try:
-        import django
-        django.setup()
-        from django.contrib.sites.models import Site
-        site, created = Site.objects.get_or_create(id=1)
-        if created or site.domain == 'example.com':
-            site.domain = 'faid-chatbot.vercel.app'  # Matches your custom domain prefix layout
-            site.name = 'Faid Chatbot'
-            site.save()
-    except Exception as e:
-        print(f"Sites initialization helper encountered an exception: {e}")
+        try:
+            from django.contrib.sites.models import Site
+            site, created = Site.objects.get_or_create(id=1)
+            if created or site.domain == 'example.com':
+                site.domain = 'faid-chatbot.vercel.app'
+                site.name = 'Faid Chatbot'
+                site.save()
+        except Exception:
+            pass  # Suppressed prints to keep Vercel JSON compilation clean
