@@ -195,3 +195,23 @@ if IS_VERCEL and DATABASE_URL:
                 site.save()
         except Exception:
             pass  # Suppressed prints to keep Vercel JSON compilation clean
+
+# ==============================================================================
+# ALLAUTH SITE INITIALIZER
+# ==============================================================================
+if IS_VERCEL and DATABASE_URL:
+    # Only run when serving a real web request to prevent setup build noise
+    if any(cmd in sys.argv for cmd in ['runserver', 'wsgi', 'asgi']) or 'vercel_wsgi' in sys.modules:
+        try:
+            import django
+            django.setup()
+            from django.contrib.sites.models import Site
+            
+            # This forces Django to create Site ID 1 if it's missing in your Supabase DB
+            site, created = Site.objects.get_or_create(id=1)
+            if created or site.domain == 'example.com':
+                site.domain = 'faid-chatbot.vercel.app'  # Put your actual Vercel domain here
+                site.name = 'Faid Chatbot'
+                site.save()
+        except Exception:
+            pass
