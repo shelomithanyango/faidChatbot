@@ -9,8 +9,7 @@ import sys
 from decouple import config
 import dj_database_url
 from dotenv import load_dotenv
-from django.contrib.sites.models import Site
-from django.conf import settings 
+
 
 load_dotenv()
 
@@ -161,6 +160,7 @@ class DynamicSiteMiddleware:
 
     def __call__(self, request):
         from django.contrib.sites.models import Site
+        from django.conf import settings
         try:
             # Match the site by looking at your current browser URL host domain
             current_host = request.get_host().split(':')[0]
