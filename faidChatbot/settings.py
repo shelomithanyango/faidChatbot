@@ -9,9 +9,8 @@ import sys
 from decouple import config
 import dj_database_url
 from dotenv import load_dotenv
-import django.contrib.sites.models
 from django.contrib.sites.models import Site
-
+from django.conf import settings 
 
 load_dotenv()
 
@@ -64,6 +63,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'faidChatbot.settings.DynamicSiteMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -151,16 +151,28 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# Set a static fallback so Django compiles cleanly
 SITE_ID = 1
 
-def GET_CURRENT_SITE_HACK(request):
-    try:
-        host = request.get_host().split(':')[0] # Drops port number attachments
-        return Site.objects.get(domain__iexact=host)
-    except Exception:
-        return Site.objects.first()
-    django.contrib.sites.models.Site.objects.get_current = GET_CURRENT_SITE_HACK
-    
+# Add this custom middleware class directly inside your settings.py file
+class DynamicSiteMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        from django.contrib.sites.models import Site
+        try:
+            # Match the site by looking at your current browser URL host domain
+            current_host = request.get_host().split(':')[0]
+            site = Site.objects.get(domain__iexact=current_host)
+            settings.SITE_ID = site.id
+        except Exception:
+            # Fallback to the very first record if things aren't configured yet
+            first_site = Site.objects.first()
+            if first_site:
+                settings.SITE_ID = first_site.id
+                
+        return self.get_response(request)
 
 SOCIALACCOUNT_STORE_TOKENS = False
 
