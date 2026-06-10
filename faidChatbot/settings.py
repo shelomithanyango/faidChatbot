@@ -148,7 +148,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-SITE_ID = 1
+if 'runserver' in sys.argv:
+    SITE_ID = 1
+else:
+    SITE_ID = 2
 SOCIALACCOUNT_STORE_TOKENS = False
 
 AUTHENTICATION_BACKENDS = [
@@ -164,18 +167,27 @@ SOCIALACCOUNT_PROVIDERS = {
             'key': ''
         },
         'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'},
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+            'prompt': 'select_account',  
+        },
         'OAUTH_PKCE_ENABLED': True,
     }
 }
+
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_ON_GET = True
 
-# ==============================================================================
-# VERCEL SERVERLESS AUTO-INITIALIZATION HANDLERS
-# ==============================================================================
+
 # Safely handles database sync only during an active web request block
 if IS_VERCEL and DATABASE_URL:
     # Only run if explicitly handling a real web process, preventing inspection tool noise
@@ -196,9 +208,7 @@ if IS_VERCEL and DATABASE_URL:
         except Exception:
             pass  # Suppressed prints to keep Vercel JSON compilation clean
 
-# ==============================================================================
-# ALLAUTH SITE INITIALIZER
-# ==============================================================================
+
 if IS_VERCEL and DATABASE_URL:
     # Only run when serving a real web request to prevent setup build noise
     if any(cmd in sys.argv for cmd in ['runserver', 'wsgi', 'asgi']) or 'vercel_wsgi' in sys.modules:

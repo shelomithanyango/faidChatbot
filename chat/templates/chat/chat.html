@@ -355,6 +355,7 @@
             font-weight: 600;
             white-space: nowrap;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
 
         .chip.gradient-filled {
@@ -367,6 +368,16 @@
             background-color: var(--bg-card);
             color: var(--brand-teal);
             border: 1px solid var(--border-color);
+        }
+
+        .chip.outline:hover {
+           background-color: rgba(0, 102, 114, 0.08);
+           border-color: var(--brand-teal);
+        }
+
+        .chip.gradient-filled:hover {
+            opacity: 0.9;
+            box-shadow: 0 2px 8px rgba(0, 102, 114, 0.3);
         }
 
         /* INPUT ACTIONS PILL */
@@ -409,6 +420,11 @@
             justify-content: center;
             cursor: pointer;
             flex-shrink: 0;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .action-btn.mic-mode {
@@ -457,7 +473,6 @@
 </head>
 <body>
 
-    <!-- SIDEBAR NAVIGATION DRAWERS -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="sidebar-menu" id="sidebarMenu">
         <div>
@@ -490,7 +505,6 @@
         </div>
     </div>
 
-    <!-- TOP BAR PANEL -->
     <div class="top-navbar-card">
         <div class="navbar-left">
             <button class="hamburger-btn" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
@@ -501,19 +515,16 @@
         </div>
         
         <div class="navbar-right">
-            <!-- CIRCULAR CONTAINER - ENTIRELY EMPTY UNTIL REAL IMAGE DETECTED -->
             <div class="avatar-container">
-                   {% if profile.profile_pic %}
-            <img src="{{ profile.profile_pic.url }}" alt="Profile Photo" class="avatar-top" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-        {% else %}
-            <!-- Clean medical user fallback icon if no custom photo exists -->
-            <i class="fa-solid fa-user-medical" style="font-size: 16px; color: #006672;"></i>
-        {% endif %}
+                {% if profile.profile_pic %}
+                    <img src="{{ profile.profile_pic.url }}" alt="Profile Photo" class="avatar-top" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                {% else %}
+                    <i class="fa-solid fa-user-medical" style="font-size: 16px; color: #006672;"></i>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- CHAT FRAME WRAPPER -->
     <div class="chat-window">
 
         <div class="chat-header">
@@ -529,7 +540,7 @@
             <button class="menu-dots"><i class="fa-solid fa-ellipsis-vertical"></i></button>
         </div>
 
-        <div class="message-area">
+        <div class="message-area" id="messageArea">
             {% if user_message %}
             <div class="msg-row-user">
                 <div class="bubble-user">{{ user_message }}</div>
@@ -544,8 +555,7 @@
             </div>
         </div>
 
-        <!-- CHIP FORM ACTION -->
-        <form method="POST" id="quickForm">
+        <form method="POST" id="quickForm" onsubmit="event.preventDefault();">
             {% csrf_token %}
             <input type="hidden" name="message" id="quickMessage">
 
@@ -557,8 +567,7 @@
             </div>
         </form>
 
-        <!-- INPUT FIELD FORM -->
-        <form method="POST" class="input-bar-container">
+        <form method="POST" class="input-bar-container" id="chatInputForm">
             {% csrf_token %}
 
             <div class="input-wrapper">
@@ -572,7 +581,7 @@
                        placeholder="Ask about burns, cuts, CPR..."
                        required>
 
-                <button type="submit" class="action-btn">
+                <button type="submit" class="action-btn" id="submitBtn">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
@@ -580,16 +589,12 @@
 
     </div>
 
-    <!-- PERSISTENT NAVIGATION FOOTER -->
-       <!-- PERSISTENT NAVIGATION FOOTER -->
-        <!-- PERSISTENT NAVIGATION FOOTER -->
     <nav class="bottom-nav">
         <a href="{% url 'chat:chat' %}" class="nav-item active"><i class="fa-solid fa-comment-dots"></i>Chat</a>
         <a href="{% url 'history:history' %}" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i>History</a>
         <a href="{% url 'profiles:profile' %}" class="nav-item"><i class="fa-regular fa-user"></i>Profile</a>
     </nav>
 
-    <!-- MAIN CONTROL INTERACTION SCRIPTS -->
     <script>
         // Hamburger Sidebar Navigation Interactions
         const openSidebarBtn = document.getElementById('openSidebar');
@@ -613,10 +618,93 @@
             sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
         }
 
-        // Quick Suggestion Submit Handler with Highlight Swapping
-        function selectChip(event, element, text) {
-            if (event) event.preventDefault();
+        // Target references updated for async fitting
+        const inputField = document.getElementById("userInputText");
+        const submitBtn = document.getElementById("submitBtn");
+        const chatContainer = document.getElementById("messageArea");
+        const chatForm = document.getElementById("chatInputForm");
+
+        // ==================== ASYNC STREAM ENGINE INTEGRATION ====================
+        async function sendChatMessage(textToSend) {
+            const text = textToSend || inputField.value.trim();
+            if (!text) return;
+
+            // 1. Instantly clear out input field & freeze interface to prevent double typing clicks
+            inputField.value = "";
+            inputField.disabled = true;
+            submitBtn.disabled = true;
+
+            // 2. Append User message bubble to DOM matching design structural rows
+            chatContainer.innerHTML += `
+                <div class="msg-row-user">
+                    <div class="bubble-user">${text}</div>
+                </div>
+            `;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
             
+            // 3. Create blank AI Response bubble container to append tokens onto live
+            const msgRowBot = document.createElement("div");
+            msgRowBot.className = "msg-row-bot";
+            msgRowBot.innerHTML = `
+                <div class="mini-bot-icon"><i class="fa-solid fa-user-medical"></i></div>
+                <div class="bubble-bot"><span class="ai-text"></span></div>
+            `;
+            chatContainer.appendChild(msgRowBot);
+            const textSpan = msgRowBot.querySelector(".ai-text");
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                // Fetch background chunk stream stream
+                const response = await fetch("{% url 'chat:chat_response_stream' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+
+                    const decodedString = decoder.decode(value);
+                    const lines = decodedString.split("\n");
+                    
+                    for (const line of lines) {
+                        if (line.startsWith("data: ")) {
+                            try {
+                                const parsedData = JSON.parse(line.slice(6));
+                                // Smoothly stitch token string changes directly onto the active bubble 
+                                textSpan.innerText += parsedData.text;
+                                chatContainer.scrollTop = chatContainer.scrollHeight; // Auto scroll down
+                            } catch(e) {
+                                console.error("Error parsing stream line JSON:", e);
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                textSpan.innerText = "Error connecting to service. Please try again.";
+            }
+
+            // 4. Unfreeze interface elements completely once token flow resolves
+            inputField.disabled = false;
+            submitBtn.disabled = false;
+            inputField.focus();
+        }
+
+        // Catch regular form submissions and send via Async Stream instead
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            sendChatMessage();
+        });
+
+        // Quick Suggestion Submit Handler converted to trigger Async Stream
+        function selectChip(element, text) {
             const chips = document.querySelectorAll('.chip');
             chips.forEach(chip => {
                 chip.classList.remove('gradient-filled');
@@ -626,19 +714,12 @@
             element.classList.remove('outline');
             element.classList.add('gradient-filled');
 
-            const quickMsgInput = document.getElementById("quickMessage");
-            const quickFormElement = document.getElementById("quickForm");
-            if (quickMsgInput && quickFormElement) {
-                quickMsgInput.value = text;
-                quickFormElement.submit();
-            }
+            // Pass direct value explicitly to the async handler
+            sendChatMessage(text);
         }
 
         // ==================== UNIVERSAL SPEECH ENGINE ====================
         const micButton = document.getElementById("micButton");
-        const inputField = document.getElementById("userInputText");
-
-        // Force browser compatibility wrappers safely
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
         if (SpeechRecognition) {
@@ -664,7 +745,6 @@
             };
 
             recognition.onresult = function(event) {
-                // Foolproof Loop: Extracts text safely regardless of browser array format
                 let spokenText = "";
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     if (event.results[i].isFinal) {
@@ -673,13 +753,8 @@
                 }
 
                 if (spokenText.trim() !== "") {
-                    inputField.value = spokenText;
-                    
-                    // Immediately submit form to Django backend chat view
-                    const parentForm = micButton.closest('form');
-                    if (parentForm) {
-                        parentForm.submit();
-                    }
+                    // Send spoken words straight into the asynchronous text stream framework
+                    sendChatMessage(spokenText);
                 }
             };
 
@@ -688,7 +763,7 @@
                 isListening = false;
                 
                 if (event.error === 'not-allowed') {
-                    alert("Microphone permission blocked! Please click the camera/mic icon on the left or right of your browser URL link address bar and switch it to 'Allow'.");
+                    alert("Microphone permission blocked! Please click the camera/mic icon next to your address bar and switch it to 'Allow'.");
                 }
             };
 

@@ -3,7 +3,6 @@ from django.conf import settings
 
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-# First aid instructions dictionary
 FIRST_AID_INSTRUCTIONS = {
     "burns": "1. Cool the burn under running water for 10–20 minutes.\n2. Remove tight items like rings.\n3. Cover with a clean cloth or sterile dressing.\n4. Do NOT apply ice or butter.\n5. Seek medical help if severe.",
     "cpr": "1. Check responsiveness and breathing.\n2. Call emergency services if no response.\n3. Place hands in the center of the chest.\n4. Perform 30 chest compressions at 100–120 per minute.\n5. Give 2 rescue breaths, then continue cycles of 30:2.\n6. Continue until help arrives or the person shows signs of life.",
@@ -17,35 +16,29 @@ FIRST_AID_INSTRUCTIONS = {
     "suffocation": "1. Call emergency services immediately.\n2. If trained, perform rescue breathing.\n3. If the person is unconscious, place them in the recovery position.\n4. Continue until help arrives.",
 }
 
-def get_chatbot_response(user_message):
-    response = client.models.generate_content(
-    model="gemini-2.5-flash",
-    contents=f"""
+def get_chatbot_stream(user_message):
+    key = user_message.strip().lower()
+    
+    # 1. If it's a predefined hardcoded local keyword, yield it instantly as a single chunk
+    if key in FIRST_AID_INSTRUCTIONS:
+        yield FIRST_AID_INSTRUCTIONS[key]
+        return
+
+    # 2. Otherwise, fetch live streaming tokens from Gemini 2.5 Flash
+    try:
+        response_stream = client.models.generate_content_stream(
+            model="gemini-2.5-flash",
+            contents=f"""
 You are a first aid assistant. 
 Provide instructions for: {user_message}
 Format your answer in short numbered steps. 
 Be brief and concise, maximum 5 steps.
 """
-)
-
-    key = user_message.strip().lower()
-    
-    # 1️Check if user typed a known first aid topic
-    if key in FIRST_AID_INSTRUCTIONS:
-        return FIRST_AID_INSTRUCTIONS[key]
-
-    # 2️Otherwise, fallback to Gemini AI
-    try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=user_message
         )
-        return response.text.strip()
+        for chunk in response_stream:
+            if chunk.text:
+                yield chunk.text
 
     except Exception as e:
         print("🔥 GEMINI ERROR:", e)
-        # 3️If Gemini fails, provide polite fallback
-        return (
-            "Sorry, I only provide first aid instructions right now. "
-            
-        )
+        yield "Sorry, something went wrong while generating instructions. Please try again."

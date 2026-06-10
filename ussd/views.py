@@ -2,10 +2,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 import africastalking
 
-# Initialize Africa's Talking
-username = "YOUR_SANDBOX_USERNAME"   # replace with your sandbox username
-api_key = "YOUR_SANDBOX_API_KEY"     # replace with your sandbox API key
-africastalking.initialize(username, api_key)
 
 @csrf_exempt
 def ussd_callback(request):
@@ -13,15 +9,23 @@ def ussd_callback(request):
     phone_number = request.POST.get("phoneNumber")
     text = request.POST.get("text", "")
 
-    # Split the text to handle submenus
-    # e.g. "1*2" → ["1", "2"]
+    # Spliting the text to handle submenus
+    # in the following way e.g. "1*2" → ["1", "2"]
     user_response = text.split("*")
 
     if text == "":
-        response = "CON Welcome to First Aid Chatbot.\n1. Tips\n2. Emergency Numbers\n3. About"
+        response = "CON Welcome to First Aid Chatbot.\nPlease tag your area of interest today.\n1. Tips\n2. Emergency Numbers\n3. About"
     elif user_response[0] == "1":
         if len(user_response) == 1:
-            response = "CON First Aid Tips:\n1. Bleeding\n2. Burns\n3. Fractures"
+             response = (
+    "CON First Aid Tips:\n"
+    "1. Bleeding\n"
+    "2. Burns\n"
+    "3. Fractures\n"
+    "4. Snakebite\n"
+    "5. Choking\n"
+    "6. Suffocation"
+)
         elif len(user_response) == 2:
             if user_response[1] == "1":
                 response = "END Bleeding Tips:\n- Apply pressure\n- Elevate limb\n- Call help if serious"
@@ -29,8 +33,16 @@ def ussd_callback(request):
                 response = "END Burns Tips:\n- Cool with water\n- Cover with clean cloth\n- Call help if severe"
             elif user_response[1] == "3":
                 response = "END Fracture Tips:\n- Immobilize\n- Avoid moving\n- Seek medical help"
+            elif user_response[1] == "4":
+                response = "END Snakebite Tips:\n- Keep victim calm & still\n- Keep bite below heart level\n- Clean wound & seek hospital"
+            elif user_response[1] == "5":    
+            
+                response = "END Choking Tips:\n- Give 5 back blows\n- Give 5 abdominal thrusts\n- Repeat until clear or passed out"
+            elif user_response[1] == "6":
+                response = "END Suffocation Tips:\n- Move victim to fresh air\n- Loosen tight clothing\n- Check breathing & start CPR if needed"
             else:
                 response = "END Invalid option. Try again."
+        
     elif user_response[0] == "2":
         if len(user_response) == 1:
             response = "CON Emergency Numbers:\n1. Ambulance\n2. Fire\n3. Police"
