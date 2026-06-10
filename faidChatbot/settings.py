@@ -9,6 +9,9 @@ import sys
 from decouple import config
 import dj_database_url
 from dotenv import load_dotenv
+import django.contrib.sites.models
+from django.contrib.sites.models import Site
+
 
 load_dotenv()
 
@@ -148,10 +151,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-if 'runserver' in sys.argv:
-    SITE_ID = 1
-else:
-    SITE_ID = 2
+SITE_ID = 1
+
+def GET_CURRENT_SITE_HACK(request):
+    try:
+        host = request.get_host().split(':')[0] # Drops port number attachments
+        return Site.objects.get(domain__iexact=host)
+    except Exception:
+        return Site.objects.first()
+    django.contrib.sites.models.Site.objects.get_current = GET_CURRENT_SITE_HACK
+    
+
 SOCIALACCOUNT_STORE_TOKENS = False
 
 AUTHENTICATION_BACKENDS = [
