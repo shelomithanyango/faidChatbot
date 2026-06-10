@@ -34,6 +34,10 @@ ALLOWED_HOSTS = [
     '*',            # Safely allows custom routing permutations for initial connection debugs
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://faid-chatbot-3l2i.vercel.app",
+    "https://faidChatbot.vercel.app",
+]
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -205,7 +209,7 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'chat/'
 LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_ON_GET = True
 
