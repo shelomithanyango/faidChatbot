@@ -6,9 +6,11 @@
     <title>MediBot - Chat History</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- for PDF export functionality (client-side) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        /* ==================== CONFIGURATION VARIABLES ==================== */
+        
         :root {
             --medibot-blue: #006672;
             --bg-body: #f4f7fc;
@@ -20,6 +22,7 @@
             --border-color: #e2e8f0;
             --nav-active: #006672;
             --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --hover-bg: #f8fafc;
         }
 
         [data-theme="dark"] {
@@ -31,6 +34,7 @@
             --accent-red: #451a1a;
             --text-red: #fca5a5;
             --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            --hover-bg: #243249;
         }
 
         * {
@@ -53,7 +57,7 @@
             flex-direction: column;
         }
 
-        /* ==================== STRUCTURAL HEADER LAYOUT ==================== */
+        
         .app-header {
             background: var(--card-bg);
             padding: 16px 5%;
@@ -129,7 +133,7 @@
             display: none;
         }
 
-        /* ==================== RESPONSIVE MAIN CONTENT GRID ==================== */
+        
         .main-content {
             flex: 1;
             width: 100%;
@@ -141,7 +145,7 @@
             gap: 24px;
         }
 
-        /* ==================== INFO & LOG SECTIONS ==================== */
+       
         .info-section {
             background: var(--card-bg);
             border-radius: 20px;
@@ -155,6 +159,9 @@
             font-weight: bold;
             padding-bottom: 8px;
             margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .section-header h3 {
@@ -171,23 +178,68 @@
             margin-bottom: 20px;
         }
 
-        /* ==================== CHAT HISTORY CARDS ==================== */
-        .log-item {
-            width: 100%;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
+       
+        .history-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
-        .log-item:last-child {
-            border-bottom: none;
+        .log-item {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background: var(--card-bg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            opacity: 1;
+            transform: scale(1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Delete animation class */
+        .log-item.removing {
+            opacity: 0;
+            transform: scale(0.9);
+            margin-top: -60px; /* Collapse spacing dynamically */
+            pointer-events: none;
         }
 
         .log-wrapper {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            width: 100%;
+            padding: 16px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .log-wrapper:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .log-left-block {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Selection Checkbox Styles */
+        .select-checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        .chat-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--medibot-blue);
         }
 
         .log-icon {
@@ -197,7 +249,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-right: 14px;
             flex-shrink: 0;
             background-color: rgba(0, 102, 114, 0.1);
             color: var(--medibot-blue);
@@ -207,22 +258,85 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            min-width: 0;
+            flex: 1;
         }
 
         .log-title {
             color: var(--text-dark);
             font-size: 15px;
             font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .log-meta {
             color: var(--text-muted);
-            font-size: 13px;
+            font-size: 12px;
         }
 
-        .arrow-right {
+        .log-actions-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-left: 12px;
+        }
+
+        /* Action Buttons */
+        .btn-action-icon {
+            background: none;
+            border: none;
             color: var(--text-muted);
+            font-size: 16px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .btn-action-icon:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-dark);
+        }
+
+        .btn-action-icon.delete-btn:hover {
+            background: var(--accent-red);
+            color: var(--text-red);
+        }
+
+        /* Chevron toggle animation */
+        .arrow-right {
+            transition: transform 0.3s ease;
+        }
+        
+        .log-item.expanded .arrow-right {
+            transform: rotate(90deg);
+        }
+
+        /* Collapsible Response Body Content */
+        .log-body-collapsible {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--hover-bg);
+            border-top: 0 solid var(--border-color);
+        }
+
+        .log-item.expanded .log-body-collapsible {
+            max-height: 1000px; /* Set high enough to manage content size dynamically */
+            border-top: 1px solid var(--border-color);
+        }
+
+        .log-body-content {
+            padding: 16px 16px 20px 76px; /* Indents neatly inline past the checklist/icons */
             font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-dark);
         }
 
         /* Export Dashboard Panel */
@@ -277,7 +391,7 @@
             background-color: #f8fafc;
         }
 
-        /* ==================== SIDENAV INTERFACE DRAWER ==================== */
+       
         .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -321,10 +435,8 @@
         .sidebar-link:hover, .sidebar-link.active { background: rgba(0, 102, 114, 0.1); color: var(--medibot-blue); }
         
         .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; }
-        .logout-btn { display: flex; align-items: center; gap: 14px; width: 100%; background: none; border: none; padding: 14px 18px; color: #ef4444; font-size: 15px; font-weight: 600; cursor: pointer; border-radius: 12px; text-decoration: none; }
-        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); }
 
-        /* ==================== BOTTOM SYSTEM NAV BAR ==================== */
+       
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -344,11 +456,9 @@
         .nav-item i { font-size: 22px; }
         .nav-item.active { color: var(--nav-active); }
     </style>
-
 </head>
 <body>
 
-    <!-- SIDEBAR NAVIGATION DRAWER PANEL -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="sidebar-menu" id="sidebarMenu">
         <div>
@@ -372,59 +482,73 @@
                 </a>
             </nav>
         </div>
-
-    
     </div>
 
-<header class="app-header">
-    <div class="header-left">
-        <button type="button" class="hamburger-btn" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
-        <div class="logo">
-            <i class="fa-solid fa-briefcase-medical"></i>
-            <span>MediBot</span>
+    <header class="app-header">
+        <div class="header-left">
+            <button type="button" class="hamburger-btn" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
+            <div class="logo">
+                <i class="fa-solid fa-briefcase-medical"></i>
+                <span>MediBot</span>
+            </div>
         </div>
-    </div>
-    
-    <div class="header-right">
-       
-        <div class="mini-avatar-container" style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; display: flex; justify-content: center; align-items: center; background: rgba(0, 102, 114, 0.1);">
-            <!-- Checks for the shared profile variable -->
-            {% if profile.profile_pic %}
-                <img src="{{ profile.profile_pic.url }}" id="header-avatar" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-            {% else %}
-                <i class="fa-solid fa-user-medical" id="header-avatar-fallback" style="font-size: 16px; color: #006672;"></i>
-            {% endif %}
+        
+        <div class="header-right">
+            <div class="mini-avatar-container">
+                {% if profile.profile_pic %}
+                    <img src="{{ profile.profile_pic.url }}" id="header-avatar" alt="Profile Photo" style="display: block;">
+                {% else %}
+                    <i class="fa-solid fa-user-medical" id="header-avatar-fallback" style="color: #006672;"></i>
+                {% endif %}
+            </div>
         </div>
-    </div>
-</header>
+    </header>
 
-
-    <!-- MAIN INTERACTIVE WRAPPER -->
     <main class="main-content">
         <section class="info-section">
             <div class="section-header">
                 <h3><i class="fa-solid fa-clock-rotate-left"></i> Chat History</h3>
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); font-weight: normal;">
+                    <input type="checkbox" id="selectAllChats" class="chat-checkbox">
+                    <label style="cursor:pointer;" for="selectAllChats">Select All</label>
+                </div>
             </div>
             <p class="section-subtitle">Review your past first-aid consultations.</p>
 
             <div class="history-list-container">
                 {% for chat in chats %}
-                <div class="log-item">
+                <div class="log-item" data-id="{{ chat.id }}">
                     <div class="log-wrapper">
-                        <div style="display: flex; align-items: center;">
-                            <div class="log-icon">
-                                <i class="fa-solid fa-notes-medical"></i>
+                        <div class="log-left-block">
+                            <div class="select-checkbox-container" onclick="event.stopPropagation();">
+                                <input type="checkbox" class="chat-checkbox item-select-checkbox">
                             </div>
-                            <div class="log-details">
+                            
+                            <div class="log-details" onclick="toggleLogItem(this.closest('.log-item'))">
                                 <span class="log-title">{{ chat.question }}</span>
-                                <span class="log-meta">{{ chat.created_at }}</span>
+                                <span class="log-meta"><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i>{{ chat.created_at }}</span>
                             </div>
                         </div>
-                        <i class="fa-solid fa-chevron-right arrow-right"></i>
+
+                        <div class="log-actions-right" onclick="event.stopPropagation();">
+                            <button type="button" class="btn-action-icon delete-btn" title="Delete Log" onclick="deleteLogItem('{{ chat.id }}', this.closest('.log-item'))">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                            <button type="button" class="btn-action-icon" title="Expand Details" onclick="toggleLogItem(this.closest('.log-item'))">
+                                <i class="fa-solid fa-chevron-right arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="log-body-collapsible">
+                        <div class="log-body-content">
+                            <strong>Assessment / Response:</strong>
+                            <p style="margin-top: 6px;">{{ chat.response }}</p>
+                        </div>
                     </div>
                 </div>
                 {% empty %}
-                <div style="padding: 32px; text-align: center; color: var(--text-muted);">
+                <div id="emptyState" style="padding: 32px; text-align: center; color: var(--text-muted);">
                     <i class="fa-regular fa-folder-open" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
                     <p>No chat history available yet.</p>
                 </div>
@@ -432,19 +556,17 @@
             </div>
         </section>
 
-        <!-- EXPORT BOARD ACTION -->
         <div class="export-panel">
             <div>
-                <div class="export-title">Export History</div>
-                <div class="export-text">Share verified clinical breakdown logs with your doctor.</div>
+                <div class="export-title">Export Selection</div>
+                <div class="export-text">Download selected medical history logs directly as an analytical report file.</div>
             </div>
             <button type="button" id="exportBtn" class="btn-export">
-                <i class="fa-regular fa-file-pdf"></i> Export PDF
+                <i class="fa-regular fa-file-pdf"></i> Export Selected PDF
             </button>
         </div>
     </main>
 
-    <!-- BOTTOM SYSTEM NAV BAR -->
     <nav class="bottom-nav">
         <a href="{% url 'chat:chat' %}" class="nav-item">
             <i class="fa-regular fa-comment-dots"></i>
@@ -460,7 +582,6 @@
         </a>
     </nav>
 
-    <!-- RESPONSIVE SCRIPT ENGINE -->
     <script>
         // Drawer Menu Control DOM Elements
         const openSidebarBtn = document.getElementById('openSidebar');
@@ -473,38 +594,106 @@
             sidebarOverlay.classList.toggle('open');
         }
 
-        openSidebarBtn.addEventListener('click', toggleSidebar);
-        closeSidebarBtn.addEventListener('click', toggleSidebar);
-        sidebarOverlay.addEventListener('click', toggleSidebar);
+        if(openSidebarBtn) openSidebarBtn.addEventListener('click', toggleSidebar);
+        if(closeSidebarBtn) closeSidebarBtn.addEventListener('click', toggleSidebar);
+        if(sidebarOverlay) sidebarOverlay.addEventListener('click', toggleSidebar);
 
-        // Theme Switcher engine 
-        const themeToggleBtn = document.getElementById('themeToggle');
-        const themeIcon = themeToggleBtn.querySelector('i');
+       
 
-        function updateThemeIcon(theme) {
-            if (theme === 'dark') {
-                themeIcon.classList.replace('fa-moon', 'fa-sun');
-            } else {
-                themeIcon.classList.replace('fa-sun', 'fa-moon');
+        // 1. Minimizable / Expandable Panel Mechanism
+        function toggleLogItem(logItemElement) {
+            logItemElement.classList.toggle('expanded');
+        }
+
+        // 2. Select All / Selection Array Tracking Controls
+        const selectAllCheckbox = document.getElementById('selectAllChats');
+        const individualCheckboxes = document.querySelectorAll('.item-select-checkbox');
+
+        if(selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                document.querySelectorAll('.item-select-checkbox').forEach(cb => {
+                    cb.checked = isChecked;
+                });
+            });
+        }
+
+        // 3. Deletable Mechanism (With local animation + backend fetch hook)
+        function deleteLogItem(id, logItemElement) {
+            if (confirm("Are you sure you want to remove this log permanently from your history?")) {
+                
+                logItemElement.classList.add('removing');
+                setTimeout(() => {
+                    logItemElement.remove();
+                    checkEmptyState();
+                }, 300); // Matches transitions speed values (.3s)
             }
         }
 
-        // Initialize display icon state on mount
-        updateThemeIcon(document.documentElement.getAttribute('data-theme'));
+        function checkEmptyState() {
+            const currentLogs = document.querySelectorAll('.log-item');
+            if (currentLogs.length === 0) {
+                const container = document.querySelector('.history-list-container');
+                container.innerHTML = `
+                    <div style="padding: 32px; text-align: center; color: var(--text-muted);">
+                        <i class="fa-regular fa-folder-open" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                        <p>No chat history available yet.</p>
+                    </div>
+                `;
+            }
+        }
 
-        themeToggleBtn.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
-        });
-
-        // Document Report generation trigger
         document.getElementById('exportBtn').addEventListener('click', function() {
-            alert("Generating your analytical medical report for export...");
-        });
+    const selectedItems = [];
+    document.querySelectorAll('.item-select-checkbox:checked').forEach(cb => {
+        const logItem = cb.closest('.log-item');
+        const title = logItem.querySelector('.log-title').innerText;
+        const timestamp = logItem.querySelector('.log-meta').innerText;
+        const content = logItem.querySelector('.log-body-content p').innerText;
+        
+        selectedItems.push({ title, timestamp, content });
+    });
+
+    if (selectedItems.length === 0) {
+        alert("Please select at least one history log response to export.");
+        return;
+    }
+
+    // 1. Build a temporary clean HTML structure for the PDF printout
+    let pdfContent = `
+        <div style="font-family: 'Inter', sans-serif; padding: 30px; color: #1e293b;">
+            <h1 style="color: #006672; border-bottom: 2px solid #006672; padding-bottom: 10px;">MediBot Medical Report</h1>
+            <p style="font-size: 12px; color: #64748b; margin-bottom: 30px;">Generated on: ${new Date().toLocaleDateString()}</p>
+    `;
+
+    selectedItems.forEach((item, index) => {
+        pdfContent += `
+            <div style="margin-bottom: 24px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <h3 style="margin: 0 0 4px 0; color: #1e293b;">${index + 1}. ${item.title}</h3>
+                <small style="color: #64748b; display: block; margin-bottom: 10px;">${item.timestamp}</small>
+                <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #334155;">${item.content}</p>
+            </div>
+        `;
+    });
+
+    pdfContent += `</div>`;
+
+    // 2. Create a temporary detached DOM element
+    const workerElement = document.createElement('div');
+    workerElement.innerHTML = pdfContent;
+
+    // 3. Configure html2pdf options
+    const options = {
+        margin:       10,
+        filename:     `MediBot_History_${new Date().toISOString().slice(0,10)}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // 4. Run generator
+    html2pdf().set(options).from(workerElement).save();
+});
     </script>
 </body>
 </html>

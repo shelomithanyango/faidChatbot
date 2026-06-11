@@ -17,14 +17,15 @@ FIRST_AID_INSTRUCTIONS = {
 }
 
 def get_chatbot_stream(user_message):
-    key = user_message.strip().lower()
-    
-    # 1. If it's a predefined hardcoded local keyword, yield it instantly as a single chunk
-    if key in FIRST_AID_INSTRUCTIONS:
-        yield FIRST_AID_INSTRUCTIONS[key]
-        return
+    message_clean = user_message.strip().lower()
 
-    # 2. Otherwise, fetch live streaming tokens from Gemini 2.5 Flash
+    
+    for keyword in FIRST_AID_INSTRUCTIONS:
+        if keyword in message_clean:
+            yield FIRST_AID_INSTRUCTIONS[keyword]
+            return 
+
+    
     try:
         response_stream = client.models.generate_content_stream(
             model="gemini-2.5-flash",

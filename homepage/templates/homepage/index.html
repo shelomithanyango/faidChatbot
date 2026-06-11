@@ -106,7 +106,7 @@
             font-weight: 500;
         }
 
-        /* TEXT LAYOUTS */
+       
         p.intro-text {
             color: var(--text-gray);
             font-size: 15px;
@@ -116,7 +116,7 @@
             padding: 0 12px;
         }
 
-        /* ACTION MATRIX */
+        
         .action-group {
             width: 100%;
             display: flex;
@@ -165,7 +165,7 @@
             transform: scale(0.98);
         }
 
-        /* ACCESS SEPARATORS */
+        
         .social-divider {
             display: flex;
             align-items: center;
@@ -181,8 +181,86 @@
             background: var(--border-color);
             margin: 0 10px;
         }
+            
+                         /* Modal Container Scrollability */
+        #helpModal {
+            display: none; /* Toggle with .open class or JS handles visibility */
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px); /* Optional modern touch */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+       }
 
-        /* OAUTH INTEGRATIONS */
+        #helpModal.open {
+            display: flex;
+      }
+
+
+        .help-container {
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 25px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            color: #333333;
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+       }
+
+
+        .help-container h2 {
+            font-size: 1.5rem;
+           color: #111;
+           margin-bottom: 8px;
+       }
+
+        .help-intro {
+           font-size: 0.95rem;
+           color: #666;
+       }
+
+        .help-divider {
+         border: 0;
+         height: 1px;
+         background: #e0e0e0;
+         margin: 20px 0;
+       }
+
+       .help-section {
+        margin-bottom: 24px;
+       }
+
+      .help-section h3 {
+        font-size: 1.15rem;
+        color: #007acc; /* Accent color */
+        margin-bottom: 10px;
+      }
+
+      .help-section ul {
+        padding-left: 20px;
+        margin-top: 8px;
+     }
+
+    .help-section li {
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    }
+
+
+    .help-container::-webkit-scrollbar {
+    width: 6px;
+     } 
+    .help-container::-webkit-scrollbar-thumb {
+       background: #ccc;
+      border-radius: 4px;
+    }
+
+        
         .btn-oauth {
             width: 100%;
             padding: 14px;
@@ -199,7 +277,7 @@
             cursor: pointer;
         }
 
-        /* CORE FOOTER NAVIGATION ELEMENTS */
+        
         .links-hub {
             margin-top: 40px;
             display: flex;
@@ -220,7 +298,7 @@
             text-decoration: underline;
         }
 
-        /* SYSTEM MODAL INTERFACE COMPONENTS */
+             
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -294,7 +372,7 @@
         }
     </style>
     
-    <!-- INITIALIZE HEAD THEME ROUTINE (Prevents screen flashing white on dark mode reload) -->
+    
    
 </head>
 <body>
@@ -365,25 +443,94 @@
 
     </div>
 
-    <!-- UI Controllers & Theme Matrix Engine -->
+   
     <script>
    
 
-        // --- HELPER DIALOG MODAL LAYOUT EVENTS ---
-        helpLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            helpModal.classList.add('open');
-        });
+     
+const helpLink = document.getElementById('helpLink');
+const helpModal = document.getElementById('helpModal');
+const closeModal = document.getElementById('closeModal');
 
-        closeModal.addEventListener('click', () => {
-            helpModal.classList.remove('open');
-        });
+// Content injector for the help modal to keep HTML clean
+const injectHelpContent = () => {
+    const modalBody = helpModal.querySelector('.modal-body') || helpModal;
+    
+    modalBody.innerHTML = `
+        <div class="help-container">
+            <h2>Welcome to Your Assistant: User Guide</h2>
+            <p class="help-intro">Get the most out of your experience. Here is a complete breakdown of how to navigate and use every feature in the application.</p>
+            
+            <hr class="help-divider">
 
-        helpModal.addEventListener('click', (e) => {
-            if (e.target === helpModal) {
-                helpModal.classList.remove('open');
-            }
-        });
+            <section class="help-section">
+                <h3>1. Getting Started (Login & Sign Up)</h3>
+                <p>Accessing your personalized dashboard is flexible and secure. You have two options:</p>
+                <ul>
+                    <li><strong>Social Authentication:</strong> Use the <em>"Continue with Google"</em> button for a seamless, single-click registration or login.</li>
+                    <li><strong>Manual Authentication:</strong> Enter your email address and a secure password manually to create an account or sign in.</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h3>2. The Chatbot Interface</h3>
+                <p>The core interaction hub offers multiple ways to communicate and customize your experience:</p>
+                <ul>
+                    <li><strong>Quick Instructions:</strong> Tap on the pre-configured instruction chips/buttons to instantly send common prompts or setup specific contexts for the AI.</li>
+                    <li><strong>Voice Input:</strong> Tap the microphone icon inside the input bar to speak your prompt directly. The system will convert your voice to text automatically.</li>
+                    <li><strong>Text Input:</strong> Type your queries manually into the bottom input field and press enter or click send.</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h3>3. Navigation & Menus</h3>
+                <p>Moving around the application is intuitive, whether you are on mobile or desktop:</p>
+                <ul>
+                    <li><strong>Hamburger Menu (Sidebar):</strong> Located at the top corner, clicking this reveals a slide-out menu containing quick navigation links, app preferences, and the <strong>Logout functionality</strong> to safely secure your session when you're done.</li>
+                    <li><strong>Bottom Navigation Bar:</strong> Designed for quick thumb-reach on mobile layouts. Effortlessly switch between the <em>Chat Interface</em>, <em>History Log</em>, and your <em>Profile Page</em> with a single tap.</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h3>4. Managing Your History</h3>
+                <p>Never lose track of an important conversation. The History Page archives your interactions with full administrative control:</p>
+                <ul>
+                    <li><strong>View:</strong> Click on any past session from the list to load and re-read the conversation transcript.</li>
+                    <li><strong>Delete:</strong> Clean up your dashboard by clicking the trash icon next to a log to permanently remove old records.</li>
+                    <li><strong>Download to PDF:</strong> Want an offline copy? Tap the download button on any history record to generate and save a formatted PDF document of your entire chat session.</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h3>5. Profile Personalization</h3>
+                <p>Make the application yours by keeping your account details up to date:</p>
+                <ul>
+                    <li><strong>Profile Picture:</strong> Upload, update, or remove your avatar image to personalize your dashboard.</li>
+                    <li><strong>Basic Details:</strong> Edit your personal data, including display name, contact details, and account preferences. Don't forget to click "Save" to apply changes!</li>
+                </ul>
+            </section>
+        </div>
+    `;
+};
+
+// Open Modal and Inject Content
+helpLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    injectHelpContent(); // Dynamically populates the guide
+    helpModal.classList.add('open');
+});
+
+// Close Modal via Close Button
+closeModal.addEventListener('click', () => {
+    helpModal.classList.remove('open');
+});
+
+// Close Modal by clicking the backdrop/overlay
+helpModal.addEventListener('click', (e) => {
+    if (e.target === helpModal) {
+        helpModal.classList.remove('open');
+    }
+});
     </script>
 
 </body>

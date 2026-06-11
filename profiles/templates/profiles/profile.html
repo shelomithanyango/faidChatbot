@@ -79,6 +79,7 @@
             font-size: 22px;
             cursor: pointer;
             padding: 4px;
+            
         }
 
         .app-header .logo {
@@ -453,7 +454,7 @@
             flex-shrink: 0;
         }
 
-        .icon-bg-blue { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .icon-bg-blue { background-color: #006672; color: #006672; }
         .arrow-right { color: var(--text-muted); font-size: 12px; }
 
         .btn-outline-dashed {
@@ -468,6 +469,60 @@
             cursor: pointer;
             margin-top: 16px;
         }
+
+
+
+                      /* Accordion functionality */
+        .collapsible {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+       }
+        .collapsible.expanded {
+            max-height: 1000px; /* High enough to contain content */
+            transition: max-height 0.5s ease-in;
+       }
+        .chevron {
+            transition: transform 0.3s ease;
+      }
+       .chevron.rotate {
+           transform: rotate(180deg);
+      }
+
+
+      .contact-card {
+           display: flex;
+           align-items: center;
+           gap: 12px;
+          padding: 10px;
+          border-bottom: 1px solid #eee;
+          position: relative;
+       }
+
+      .btn-add-contact {
+           background: none;
+          border: 1px dashed #ccc;
+          color: #007bff;
+          padding: 8px 12px;
+         cursor: pointer;
+         border-radius: 4px;
+         margin-bottom: 10px;
+         width: 100%;
+        text-align: left;
+     }
+
+    .delete-contact-btn {
+       background: none;
+       border: none;
+      color: #dc3545;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 5px;
+    }
+
+   .delete-contact-btn:hover {
+       color: #bd2130;
+    }
 
         
         .sidebar-overlay {
@@ -663,36 +718,61 @@
                     </div>
                 </section>
 
-                <section class="info-section accordion">
-                    <div class="section-header toggle-trigger">
-                        <h3><i class="fa-solid fa-asterisk"></i> Emergency Contacts</h3>
-                        <i class="fa-solid fa-chevron-up chevron"></i>
-                    </div>
-                    <div class="section-content collapsible">
-                        <div id="contactsContainer">
-                            {% for contact in contacts %}
-                            <div class="contact-card">
-                                <div class="contact-details view-mode-text">
-                                    <span class="contact-name values-name-txt">{{ contact.name }} ({% if contact.relationship %}{{ contact.relationship }}{% else %}Contact{% endif %})</span>
-                                    <span class="contact-phone values-phone-txt">{{ contact.phone }}</span>
-                                </div>
-                                <div class="contact-edit-box" style="display: none; flex-direction: column; gap: 4px; width: 100%;">
-                                    <input type="hidden" name="contact_id[]" value="{{ contact.id }}">
-                                    <input type="text" class="edit-contact-name" name="contact_name[]" value="{{ contact.name }}">
-                                    <input type="text" class="edit-contact-relationship" name="contact_relationship[]" value="{{ contact.relationship }}" placeholder="Relationship">
-                                    <input type="text" class="edit-contact-phone" name="contact_phone[]" value="{{ contact.phone }}">
-                                </div>
-                                <a href="tel:{{ contact.phone }}" class="call-btn">
-                                    <i class="fa-solid fa-phone"></i>
-                                </a>
-                            </div>
-                            {% empty %}
-                            <p class="view-mode-text" style="padding: 10px; color: var(--text-muted);">No emergency contacts added yet.</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </section>
+               
+               <section class="info-section accordion">
+    <div class="section-header toggle-trigger">
+        <h3><i class="fa-solid fa-asterisk"></i> Emergency Contacts</h3>
+        <i class="fa-solid fa-chevron-up chevron"></i>
+    </div>
+    <div class="section-content collapsible">
+        <button type="button" id="addContactBtn" class="btn-add-contact">
+            <i class="fa-solid fa-plus"></i> Add Contact
+        </button>
 
+        <div id="contactsContainer">
+            {% for contact in contacts %}
+            <div class="contact-card">
+                <button type="button" class="delete-contact-btn" data-id="{{ contact.id }}">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+
+                <div class="contact-details view-mode-text">
+                    <span class="contact-name values-name-txt">{{ contact.name }} ({% if contact.relationship %}{{ contact.relationship }}{% else %}Contact{% endif %})</span>
+                    <span class="contact-phone values-phone-txt">{{ contact.phone }}</span>
+                </div>
+                <div class="contact-edit-box" style="display: none; flex-direction: column; gap: 4px; width: 100%;">
+                    <input type="hidden" name="contact_id[]" value="{{ contact.id }}">
+                    <input type="text" class="edit-contact-name" name="contact_name[]" value="{{ contact.name }}">
+                    <input type="text" class="edit-contact-relationship" name="contact_relationship[]" value="{{ contact.relationship }}" placeholder="Relationship">
+                    <input type="text" class="edit-contact-phone" name="contact_phone[]" value="{{ contact.phone }}">
+                </div>
+                <a href="tel:{{ contact.phone }}" class="call-btn">
+                    <i class="fa-solid fa-phone"></i>
+                </a>
+            </div>
+            {% empty %}
+            <p id="noContactsMsg" class="view-mode-text" style="padding: 10px; color: var(--text-muted);">No emergency contacts added yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<template id="contactTemplate">
+    <div class="contact-card new-contact">
+        <button type="button" class="delete-contact-btn">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+        <div class="contact-edit-box" style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+            <input type="hidden" name="contact_id[]" value="">
+            <input type="text" class="edit-contact-name" name="contact_name[]" placeholder="Full Name" required>
+            <input type="text" class="edit-contact-relationship" name="contact_relationship[]" placeholder="Relationship">
+            <input type="text" class="edit-contact-phone" name="contact_phone[]" placeholder="Phone Number" required>
+        </div>
+        <a href="#" class="call-btn disabled" style="display:none;">
+            <i class="fa-solid fa-phone"></i>
+        </a>
+    </div>
+</template>
                 <section class="info-section accordion">
                     <div class="section-header toggle-trigger">
                         <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Chat History</h3>
@@ -742,7 +822,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
-            // --- 1. ACCORDION STRUCTURAL ACTIONS ---
+          
             const accordions = document.querySelectorAll('.info-section.accordion');
             accordions.forEach(accordion => {
                 const trigger = accordion.querySelector('.toggle-trigger');
@@ -756,7 +836,7 @@
                 }
             });
 
-            // --- 2. DRAWER SIDEBAR NAVIGATION ---
+            
             const openSidebarBtn = document.getElementById('openSidebar');
             const closeSidebarBtn = document.getElementById('closeSidebar');
             const sidebarMenu = document.getElementById('sidebarMenu');
@@ -770,7 +850,7 @@
             closeSidebarBtn.addEventListener('click', () => toggleSidebar(false));
             sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
 
-            // --- 3. PROFILE EDITOR ENGINE WITH FORM SUBMISSION ---
+           
             const editToggleBtn = document.getElementById('editToggleBtn');
             const editTriggerBtn = document.getElementById('editTriggerBtn');
             const viewModeTexts = document.querySelectorAll('.view-mode-text');
@@ -779,7 +859,7 @@
             const contactEditBoxes = document.querySelectorAll('.contact-edit-box');
             const profileForm = document.getElementById('profileForm');
 
-            // Opens input fields interface manually
+            
             if (editTriggerBtn) {
                 editTriggerBtn.addEventListener('click', () => {
                     viewModeTexts.forEach(el => el.style.display = 'none');
@@ -789,7 +869,7 @@
                 });
             }
 
-            // Handles standard post save pipeline dispatch to Django view backend
+          
             if (editToggleBtn) {
                 editToggleBtn.addEventListener('click', () => {
                     profileForm.submit();
@@ -829,5 +909,74 @@
                 });
             }
         });
+
+        document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('contactsContainer');
+    const template = document.getElementById('contactTemplate');
+    const addBtn = document.getElementById('addContactBtn');
+    const noContactsMsg = document.getElementById('noContactsMsg');
+
+    // --- 1. EXPAND / COLLAPSE (ACCORDION) ---
+    const header = document.querySelector('.toggle-trigger');
+    const content = document.querySelector('.collapsible');
+    const chevron = document.querySelector('.chevron');
+
+    header.addEventListener('click', () => {
+        content.classList.toggle('expanded');
+        chevron.classList.toggle('rotate');
+    });
+
+    
+    addBtn.addEventListener('click', () => {
+       
+        if (noContactsMsg) noContactsMsg.style.display = 'none';
+        const clone = template.content.cloneNode(true);
+        container.appendChild(clone);
+        content.classList.add('expanded');
+    });
+
+    
+    container.addEventListener('click', function (e) {
+        // Event delegation to catch dynamic trash button clicks
+        const deleteBtn = e.target.closest('.delete-contact-btn');
+        if (!deleteBtn) return;
+
+        const card = deleteBtn.closest('.contact-card');
+        const contactId = deleteBtn.getAttribute('data-id');
+
+        if (contactId) {
+          
+            const hiddenDeleteInput = document.createElement('input');
+            hiddenDeleteInput.type = 'hidden';
+            hiddenDeleteInput.name = 'delete_contact_id[]';
+            hiddenDeleteInput.value = contactId;
+            container.appendChild(hiddenDeleteInput);
+        }
+
+        card.remove();
+
+        
+        if (container.querySelectorAll('.contact-card').length === 0 && noContactsMsg) {
+            noContactsMsg.style.display = 'block';
+        }
+    });
+
+   
+    container.addEventListener('input', function(e) {
+        if (e.target.classList.contains('edit-contact-phone')) {
+            const card = e.target.closest('.contact-card');
+            const callBtn = card.querySelector('.call-btn');
+            if (callBtn) {
+                const phoneNum = e.target.value.trim();
+                if (phoneNum) {
+                    callBtn.href = `tel:${phoneNum}`;
+                    callBtn.style.display = 'inline-block';
+                } else {
+                    callBtn.style.display = 'none';
+                }
+            }
+        }
+    });
+});
     </script>
 </body>

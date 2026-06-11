@@ -138,18 +138,19 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 USE_I18N = True
 USE_TZ = True
 
 # Static & Media files configuration for Vercel
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = str(BASE_DIR / 'staticfiles')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = str(BASE_DIR / 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
