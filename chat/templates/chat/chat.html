@@ -274,13 +274,29 @@
             letter-spacing: 0.5px;
         }
 
-        .menu-dots {
+        /* HEADER HELP BUTTON */
+        .header-help-btn {
             background: none;
             border: none;
             color: white;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
             opacity: 0.9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            z-index: 15;
+        }
+
+        .header-help-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .header-help-btn:active {
+            transform: scale(0.95);
         }
 
         /* MESSAGES STREAM AREA */
@@ -469,6 +485,115 @@
         }
         
         .nav-item i { font-size: 18px; }
+
+        /* ==================== HELP MODAL CONTAINER SYSTEM ==================== */
+        .help-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 99999 !important; /* Forces safely on top of all relative wrappers */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .help-modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .help-modal-card {
+            background: var(--bg-card, #ffffff);
+            width: 90%;
+            max-width: 460px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .help-modal-overlay.open .help-modal-card {
+            transform: scale(1);
+        }
+
+        .help-modal-header {
+            background: linear-gradient(to right, var(--gradient-start, #006672), var(--gradient-end, #00454e));
+            padding: 16px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .help-modal-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+        }
+
+        .close-modal-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+        .close-modal-btn:hover { opacity: 1; }
+
+        .help-modal-body {
+            padding: 24px;
+            color: var(--text-dark, #1e293b);
+        }
+
+        .help-modal-body p {
+            font-size: 14px;
+            margin-bottom: 16px;
+            color: var(--text-gray, #64748b);
+        }
+
+        .help-tips-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .help-tips-list li {
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+
+        .help-tips-list i {
+            color: var(--brand-teal, #006672);
+            width: 20px;
+        }
+
+        .help-modal-footer-note {
+            background-color: #fff7ed;
+            border: 1px solid #ffedd5;
+            color: #c2410c;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            gap: 8px;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -537,7 +662,9 @@
                     <p>First Aid Assistant</p>
                 </div>
             </div>
-            <button class="menu-dots"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+            <button type="button" class="header-help-btn" id="helpHeaderBtn" title="Get Emergency Assistance Info">
+                <i class="fa-solid fa-circle-question"></i>
+            </button>
         </div>
 
         <div class="message-area" id="messageArea">
@@ -595,7 +722,54 @@
         <a href="{% url 'profiles:profile' %}" class="nav-item"><i class="fa-regular fa-user"></i>Profile</a>
     </nav>
 
+    <div class="help-modal-overlay" id="helpModalOverlay">
+        <div class="help-modal-card">
+            <div class="help-modal-header">
+                <h3><i class="fa-solid fa-circle-question"></i> MediBot Quick Guide</h3>
+                <button type="button" class="close-modal-btn" id="closeHelpModal">&times;</button>
+            </div>
+            <div class="help-modal-body">
+                <p>Welcome to your First Aid Assistant. Here is how you can quickly get help:</p>
+                <ul class="help-tips-list">
+                    <li><strong><i class="fa-solid fa-microphone"></i> Voice Commands:</strong> Tap the mic icon to explain an emergency hands-free.</li>
+                    <li><strong><i class="fa-solid fa-bolt"></i> Suggestion Chips:</strong> Tap chips like "CPR" or "Burns" for instant step-by-step protocols.</li>
+                    <li><strong><i class="fa-solid fa-phone"></i> Emergency Contacts:</strong> Manage your primary medical contacts directly inside your Profile settings.</li>
+                </ul>
+                <div class="help-modal-footer-note">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Always call local emergency services (like 911) for severe or life-threatening crises.
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // help popup
+        (function() {
+            window.addEventListener('DOMContentLoaded', () => {
+                const trigger = document.getElementById("helpHeaderBtn");
+                const modal = document.getElementById("helpModalOverlay");
+                const closeBtn = document.getElementById("closeHelpModal");
+
+                if (trigger && modal && closeBtn) {
+                    trigger.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        modal.classList.add("open");
+                    });
+
+                    closeBtn.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        modal.classList.remove("open");
+                    });
+
+                    modal.addEventListener("click", (e) => {
+                        if (e.target === modal) {
+                            modal.classList.remove("open");
+                        }
+                    });
+                }
+            });
+        })();
+
         // Hamburger Sidebar Navigation Interactions
         const openSidebarBtn = document.getElementById('openSidebar');
         const closeSidebarBtn = document.getElementById('closeSidebar');
@@ -624,7 +798,6 @@
         const chatContainer = document.getElementById("messageArea");
         const chatForm = document.getElementById("chatInputForm");
 
-        // ==================== ASYNC STREAM ENGINE INTEGRATION ====================
         async function sendChatMessage(textToSend) {
             const text = textToSend || inputField.value.trim();
             if (!text) return;
@@ -718,7 +891,7 @@
             sendChatMessage(text);
         }
 
-        // ==================== UNIVERSAL SPEECH ENGINE ====================
+       
         const micButton = document.getElementById("micButton");
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 

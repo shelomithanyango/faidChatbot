@@ -1,63 +1,140 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
-import africastalking
+from history.models import ChatHistory
 
 
+# -------------------------
+# PHONE NORMALIZATION
+# -------------------------
+def normalize_phone(number):
+    if not number:
+        return None
+
+    number = str(number).strip()
+
+    # remove spaces just in case
+    number = number.replace(" ", "")
+
+    # already correct format
+    if number.startswith("+"):
+        return number
+
+    # 2547... → +2547...
+    if number.startswith("254"):
+        return "+" + number
+
+    # 07... → +2547...
+    if number.startswith("0"):
+        return "+254" + number[1:]
+
+    return number
+
+
+# -------------------------
+# SAVE CHAT
+# -------------------------
+def save_chat(phone, question, response):
+    try:
+        ChatHistory.objects.create(
+            user=None,
+            phone_number=phone,
+            question=question,
+            response=response
+        )
+    except Exception as e:
+        print("SAVE ERROR:", e)
+
+
+# -------------------------
+# USSD VIEW
+# -------------------------
 @csrf_exempt
 def ussd_callback(request):
+
+    if request.method != "POST":
+        return HttpResponse("END Invalid request", content_type="text/plain")
+
+    # IMPORTANT: correct key from Africa's Talking is "phoneNumber"
+    raw_phone = request.POST.get("phoneNumber")
+
+    phone_number = normalize_phone(raw_phone)
+
     session_id = request.POST.get("sessionId")
-    phone_number = request.POST.get("phoneNumber")
-    text = request.POST.get("text", "")
+    text = request.POST.get("text", "").strip()
 
-    # Spliting the text to handle submenus
-    # in the following way e.g. "1*2" → ["1", "2"]
-    user_response = text.split("*")
+    user_response = text.split("*") if text else []
 
-    if text == "":
-        response = "CON Welcome to First Aid Chatbot.\nPlease tag your area of interest today.\n1. Tips\n2. Emergency Numbers\n3. About"
+    print("RAW PHONE:", raw_phone)
+    print("NORMALIZED PHONE:", phone_number)
+    print("TEXT:", text)
+
+    response = "END Something went wrong"
+
+    # ---------------- MAIN MENU ----------------
+    if len(user_response) == 0 or user_response[0] == "":
+        response = (
+            "CON Welcome to First Aid Chatbot\n"
+            "1. First Aid Tips\n"
+            "2. Emergency Numbers\n"
+            "3. About"
+        )
+
+    # ---------------- FIRST AID ----------------
     elif user_response[0] == "1":
-        if len(user_response) == 1:
-             response = (
-    "CON First Aid Tips:\n"
-    "1. Bleeding\n"
-    "2. Burns\n"
-    "3. Fractures\n"
-    "4. Snakebite\n"
-    "5. Choking\n"
-    "6. Suffocation"
-)
-        elif len(user_response) == 2:
-            if user_response[1] == "1":
-                response = "END Bleeding Tips:\n- Apply pressure\n- Elevate limb\n- Call help if serious"
-            elif user_response[1] == "2":
-                response = "END Burns Tips:\n- Cool with water\n- Cover with clean cloth\n- Call help if severe"
-            elif user_response[1] == "3":
-                response = "END Fracture Tips:\n- Immobilize\n- Avoid moving\n- Seek medical help"
-            elif user_response[1] == "4":
-                response = "END Snakebite Tips:\n- Keep victim calm & still\n- Keep bite below heart level\n- Clean wound & seek hospital"
-            elif user_response[1] == "5":    
-            
-                response = "END Choking Tips:\n- Give 5 back blows\n- Give 5 abdominal thrusts\n- Repeat until clear or passed out"
-            elif user_response[1] == "6":
-                response = "END Suffocation Tips:\n- Move victim to fresh air\n- Loosen tight clothing\n- Check breathing & start CPR if needed"
-            else:
-                response = "END Invalid option. Try again."
-        
-    elif user_response[0] == "2":
-        if len(user_response) == 1:
-            response = "CON Emergency Numbers:\n1. Ambulance\n2. Fire\n3. Police"
-        elif len(user_response) == 2:
-            if user_response[1] == "1":
-                response = "END Ambulance: 911"
-            elif user_response[1] == "2":
-                response = "END Fire: 999"
-            elif user_response[1] == "3":
-                response = "END Police: 112"
-            else:
-                response = "END Invalid option. Try again."
-    elif user_response[0] == "3":
-        response = "END First Aid Chatbot v1.0. Provides tips and emergency numbers."
-    else:
-        response = "END Invalid option. Try again."
 
-    return HttpResponse(response, content_type='text/plain')
+        if len(user_response) == 1:
+            response = (
+                "CON First Aid Tips\n"
+                "1. Bleeding\n"
+                "2. Burns\n"
+                "3. Fractures\n"
+                "4. Snakebite\n"
+                "5. Choking\n"
+                "6. Suffocation"
+            )
+
+        elif len(user_response) == 2:
+            tips = {
+                "1": "END Bleeding:\n- Apply pressure\n- Elevate limb\n- Seek help",
+                "2": "END Burns:\n- Cool with water\n- Cover wound\n- Avoid creams",
+                "3": "END Fractures:\n- Immobilize\n- Do not move victim\n- Go hospital",
+                "4": "END Snakebite:\n- Keep calm\n- Immobilize limb\n- Go hospital",
+                "5": "END Choking:\n- Back blows\n- Abdominal thrusts\n- Repeat",
+                "6": "END Suffocation:\n- Fresh air\n- Loosen clothes\n- CPR if needed"
+            }
+            response = tips.get(user_response[1], "END Invalid option")
+
+    # ---------------- EMERGENCY ----------------
+    elif user_response[0] == "2":
+
+        if len(user_response) == 1:
+            response = (
+                "CON Emergency Numbers\n"
+                "1. Ambulance\n"
+                "2. Fire\n"
+                "3. Police"
+            )
+        else:
+            numbers = {
+                "1": "END Ambulance: 112",
+                "2": "END Fire: 999",
+                "3": "END Police: 999"
+            }
+            response = numbers.get(user_response[1], "END Invalid option")
+
+    # ---------------- ABOUT ----------------
+    elif user_response[0] == "3":
+        response = "END First Aid Chatbot v1.0"
+
+    else:
+        response = "END Invalid option"
+
+    # ---------------- SAVE CHAT (IMPORTANT FIX HERE) ----------------
+    if response.startswith("END"):
+        save_chat(
+            phone=phone_number,   # ALWAYS normalized
+            question=text,
+            response=response
+        )
+
+    return HttpResponse(response, content_type="text/plain")

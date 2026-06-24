@@ -83,13 +83,13 @@
         }
 
         .app-header .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #0284c7;
-            font-size: 22px;
-            font-weight: 700;
-        }
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary-blue); /* Updated from #0284c7 */
+    font-size: 22px;
+    font-weight: 700;
+}
 
         .header-right {
             display: flex;
@@ -560,7 +560,14 @@
 
         .sidebar-menu.open { left: 0; }
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .sidebar-brand { display: flex; align-items: center; gap: 10px; color: #0284c7; font-weight: 700; font-size: 18px; }
+        .sidebar-brand { 
+           display: flex; 
+           align-items: center; 
+           gap: 10px; 
+           color: var(--primary-blue); /* Updated from #0284c7 */
+           font-weight: 700; 
+           font-size: 18px; 
+            }
         .close-sidebar-btn { background: none; border: none; color: var(--text-dark); font-size: 20px; cursor: pointer; }
         
         .sidebar-nav-links { display: flex; flex-direction: column; gap: 10px; flex-grow: 1; }

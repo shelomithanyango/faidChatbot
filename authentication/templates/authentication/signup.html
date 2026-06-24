@@ -253,34 +253,51 @@
                 <div class="message">{{ message }}</div>
             {% endfor %}
         {% endif %}
+<form method="post">
+    {% csrf_token %}
 
-        <form method="post">
-            {% csrf_token %}
+    <!-- Displays all validation error banners -->
+    {% if messages %}
+        <div class="messages-container" style="margin-bottom: 15px;">
+            {% for message in messages %}
+                <div class="alert alert-danger" style="color: #ff4d4d; font-size: 14px; font-weight: bold; margin-bottom: 5px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
-            <div class="field-wrapper">
-                <i class="fa-regular fa-user input-icon"></i>
-                <input type="text" name="username" placeholder="Name" required>
-            </div>
+    <div class="field-wrapper">
+        <i class="fa-regular fa-user input-icon"></i>
+        <input type="text" name="username" placeholder="Name" value="{{ request.POST.username }}" required>
+    </div>
 
-            <div class="field-wrapper">
-                <i class="fa-regular fa-envelope input-icon"></i>
-                <input type="email" name="email" placeholder="Email" required>
-            </div>
+    <div class="field-wrapper">
+        <i class="fa-regular fa-envelope input-icon"></i>
+        <input type="email" name="email" placeholder="Email" value="{{ request.POST.email }}" required>
+    </div>
 
-            <div class="field-wrapper">
-                <i class="fa-solid fa-lock input-icon"></i>
-                <input type="password" name="password1" placeholder="Password" id="pass1" required>
-                <i class="fa-regular fa-eye-slash toggle-password" onclick="toggleVisibility('pass1', this)"></i>
-            </div>
+    <div class="field-wrapper">
+        <i class="fa-regular fa-phone input-icon"></i>
+        <input type="text" name="phone_number" placeholder="Phone Number" value="{{ request.POST.phone_number }}" required>
+    </div>
 
-            <div class="field-wrapper">
-                <i class="fa-solid fa-shield-halved input-icon"></i>
-                <input type="password" name="password2" placeholder="Confirm Password" id="pass2" required>
-                <i class="fa-regular fa-eye-slash toggle-password" onclick="toggleVisibility('pass2', this)"></i>
-            </div>
+    <div class="field-wrapper">
+        <i class="fa-solid fa-lock input-icon"></i>
+        <input type="password" name="password1" placeholder="Password" id="pass1" required>
+        <i class="fa-regular fa-eye-slash toggle-password" onclick="toggleVisibility('pass1', this)"></i>
+    </div>
 
-            <button type="submit" class="btn-gradient">Sign Up</button>
-        </form>
+    <div class="field-wrapper">
+        <i class="fa-solid fa-shield-halved input-icon"></i>
+        <input type="password" name="password2" placeholder="Confirm Password" id="pass2" required>
+        <i class="fa-regular fa-eye-slash toggle-password" onclick="toggleVisibility('pass2', this)"></i>
+    </div>
+
+    <button type="submit" class="btn-gradient">Sign Up</button>
+</form>
+
+
 
         <div class="social-divider">or</div>
         <button class="btn-oauth">
